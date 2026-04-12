@@ -270,7 +270,73 @@ export class GameEngine {
 			toughestVerse: this.getToughestVerse()
 		};
 
+		// Persist results to SQLite
+		this.persistSession(leaderboard);
+
 		this.broadcast('game:final', finalData);
+	}
+
+	private persistSession(leaderboard: LeaderboardEntry[]): void {
+		if (!this.sessionId || !this.mode || !this.packSlug) return;
+
+		try {
+			const db = getDb();
+
+			// Get pack ID
+			const pack = db.prepare('SELECT id FROM verse_packs WHERE slug = ?').get(this.packSlug) as { id: number } | undefined;
+
+			// Save game session
+			db.prepare(
+				`INSERT INTO game_sessions (id, pack_id, mode, status, num_rounds, finished_at)
+				 VALUES (?, ?, ?, 'finished', ?, datetime('now'))`
+			).run(this.sessionId, pack?.id ?? null, this.mode, this.totalRounds);
+
+			// Save each player's results
+			const insertPlayer = db.prepare(
+				`INSERT INTO session_players (session_id, display_name, total_score, final_rank)
+				 VALUES (?, ?, ?, ?)`
+			);
+
+			const insertAnswer = db.prepare(
+				`INSERT INTO answers (session_id, session_player_id, round_number, verse_id, answer_text, is_correct, accuracy_pct, time_ms, base_points, speed_bonus, streak_bonus, total_points)
+				 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+			);
+
+			const saveAll = db.transaction(() => {
+				for (const entry of leaderboard) {
+					const result = insertPlayer.run(this.sessionId, entry.name, entry.score, entry.rank);
+					const sessionPlayerId = result.lastInsertRowid;
+
+					// Save round-by-round answers for this player
+					const playerRounds = this.roundAnswers.get(entry.playerId);
+					if (playerRounds) {
+						for (const [round, scored] of playerRounds) {
+							const question = this.questions[round - 1];
+							const verseId = question ? ('verseId' in question ? question.verseId : null) : null;
+							insertAnswer.run(
+								this.sessionId,
+								sessionPlayerId,
+								round,
+								verseId,
+								scored.answerText,
+								scored.isCorrect ? 1 : 0,
+								scored.accuracyPct,
+								0, // timeMs not stored in ScoredAnswer currently
+								scored.basePoints,
+								scored.speedBonus,
+								Math.floor((scored.streakMultiplier - 1) * 100),
+								scored.totalPoints
+							);
+						}
+					}
+				}
+			});
+
+			saveAll();
+			console.log(`[game] Session ${this.sessionId} persisted: ${leaderboard.length} players, ${this.totalRounds} rounds`);
+		} catch (err) {
+			console.error('[game] Failed to persist session:', err);
+		}
 	}
 
 	playAgain(): void {

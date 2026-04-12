@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
+		"start": "tsx server.ts",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -32,6 +33,7 @@
 		"qrcode": "^1.5.4",
 		"socket.io": "^4.8.3",
 		"socket.io-client": "^4.8.3",
+		"tsx": "^4.21.0",
 		"uuid": "^13.0.0"
 	}
 }
