@@ -1,0 +1,208 @@
+{
+	"slug": "love",
+	"name": "Love",
+	"description": "Verses about God's love and loving one another",
+	"icon": "❤️",
+	"verses": [
+		{
+			"book": "1 Corinthians",
+			"chapter": 13,
+			"verse_start": 4,
+			"text": "Charity suffereth long, and is kind; charity envieth not; charity vaunteth not itself, is not puffed up,",
+			"reference": "1 Corinthians 13:4",
+			"keywords": "charity,love,patient,kind,envy"
+		},
+		{
+			"book": "1 Corinthians",
+			"chapter": 13,
+			"verse_start": 7,
+			"text": "Beareth all things, believeth all things, hopeth all things, endureth all things.",
+			"reference": "1 Corinthians 13:7",
+			"keywords": "beareth,believeth,hopeth,endureth"
+		},
+		{
+			"book": "1 Corinthians",
+			"chapter": 13,
+			"verse_start": 13,
+			"text": "And now abideth faith, hope, charity, these three; but the greatest of these is charity.",
+			"reference": "1 Corinthians 13:13",
+			"keywords": "faith,hope,charity,greatest"
+		},
+		{
+			"book": "1 John",
+			"chapter": 4,
+			"verse_start": 8,
+			"text": "He that loveth not knoweth not God; for God is love.",
+			"reference": "1 John 4:8",
+			"keywords": "loveth,knoweth,God,love"
+		},
+		{
+			"book": "1 John",
+			"chapter": 4,
+			"verse_start": 19,
+			"text": "We love him, because he first loved us.",
+			"reference": "1 John 4:19",
+			"keywords": "love,first,loved"
+		},
+		{
+			"book": "John",
+			"chapter": 15,
+			"verse_start": 13,
+			"text": "Greater love hath no man than this, that a man lay down his life for his friends.",
+			"reference": "John 15:13",
+			"keywords": "greater,love,lay,life,friends"
+		},
+		{
+			"book": "John",
+			"chapter": 13,
+			"verse_start": 34,
+			"text": "A new commandment I give unto you, That ye love one another; as I have loved you, that ye also love one another.",
+			"reference": "John 13:34",
+			"keywords": "new,commandment,love,one another"
+		},
+		{
+			"book": "John",
+			"chapter": 13,
+			"verse_start": 35,
+			"text": "By this shall all men know that ye are my disciples, if ye have love one to another.",
+			"reference": "John 13:35",
+			"keywords": "know,disciples,love"
+		},
+		{
+			"book": "Romans",
+			"chapter": 13,
+			"verse_start": 10,
+			"text": "Love worketh no ill to his neighbour: therefore love is the fulfilling of the law.",
+			"reference": "Romans 13:10",
+			"keywords": "love,ill,neighbour,fulfilling,law"
+		},
+		{
+			"book": "1 Peter",
+			"chapter": 4,
+			"verse_start": 8,
+			"text": "And above all things have fervent charity among yourselves: for charity shall cover the multitude of sins.",
+			"reference": "1 Peter 4:8",
+			"keywords": "fervent,charity,cover,multitude,sins"
+		},
+		{
+			"book": "Colossians",
+			"chapter": 3,
+			"verse_start": 14,
+			"text": "And above all these things put on charity, which is the bond of perfectness.",
+			"reference": "Colossians 3:14",
+			"keywords": "charity,bond,perfectness"
+		},
+		{
+			"book": "1 John",
+			"chapter": 4,
+			"verse_start": 11,
+			"text": "Beloved, if God so loved us, we ought also to love one another.",
+			"reference": "1 John 4:11",
+			"keywords": "beloved,God,loved,love,one another"
+		},
+		{
+			"book": "Proverbs",
+			"chapter": 10,
+			"verse_start": 12,
+			"text": "Hatred stirreth up strifes: but love covereth all sins.",
+			"reference": "Proverbs 10:12",
+			"keywords": "hatred,strifes,love,covereth,sins"
+		},
+		{
+			"book": "Song of Solomon",
+			"chapter": 8,
+			"verse_start": 7,
+			"text": "Many waters cannot quench love, neither can the floods drown it: if a man would give all the substance of his house for love, it would utterly be contemned.",
+			"reference": "Song of Solomon 8:7",
+			"keywords": "waters,quench,love,floods,drown"
+		},
+		{
+			"book": "Mark",
+			"chapter": 12,
+			"verse_start": 30,
+			"text": "And thou shalt love the Lord thy God with all thy heart, and with all thy soul, and with all thy mind, and with all thy strength: this is the first commandment.",
+			"reference": "Mark 12:30",
+			"keywords": "love,Lord,God,heart,soul,mind,strength,commandment"
+		},
+		{
+			"book": "Mark",
+			"chapter": 12,
+			"verse_start": 31,
+			"text": "And the second is like, namely this, Thou shalt love thy neighbour as thyself. There is none other commandment greater than these.",
+			"reference": "Mark 12:31",
+			"keywords": "love,neighbour,thyself,commandment,greater"
+		},
+		{
+			"book": "Ephesians",
+			"chapter": 5,
+			"verse_start": 25,
+			"text": "Husbands, love your wives, even as Christ also loved the church, and gave himself for it;",
+			"reference": "Ephesians 5:25",
+			"keywords": "husbands,love,wives,Christ,church"
+		},
+		{
+			"book": "1 Corinthians",
+			"chapter": 16,
+			"verse_start": 14,
+			"text": "Let all your things be done with charity.",
+			"reference": "1 Corinthians 16:14",
+			"keywords": "charity,done"
+		},
+		{
+			"book": "Zephaniah",
+			"chapter": 3,
+			"verse_start": 17,
+			"text": "The LORD thy God in the midst of thee is mighty; he will save, he will rejoice over thee with joy; he will rest in his love, he will joy over thee with singing.",
+			"reference": "Zephaniah 3:17",
+			"keywords": "LORD,God,mighty,save,rejoice,joy,love,singing"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 136,
+			"verse_start": 1,
+			"text": "O give thanks unto the LORD; for he is good: for his mercy endureth for ever.",
+			"reference": "Psalm 136:1",
+			"keywords": "thanks,LORD,good,mercy,endureth"
+		},
+		{
+			"book": "Jeremiah",
+			"chapter": 31,
+			"verse_start": 3,
+			"text": "The LORD hath appeared of old unto me, saying, Yea, I have loved thee with an everlasting love: therefore with lovingkindness have I drawn thee.",
+			"reference": "Jeremiah 31:3",
+			"keywords": "loved,everlasting,love,lovingkindness,drawn"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 103,
+			"verse_start": 8,
+			"text": "The LORD is merciful and gracious, slow to anger, and plenteous in mercy.",
+			"reference": "Psalm 103:8",
+			"keywords": "merciful,gracious,slow,anger,mercy"
+		},
+		{
+			"book": "Matthew",
+			"chapter": 5,
+			"verse_start": 44,
+			"text": "But I say unto you, Love your enemies, bless them that curse you, do good to them that hate you, and pray for them which despitefully use you, and persecute you;",
+			"reference": "Matthew 5:44",
+			"keywords": "love,enemies,bless,curse,good,hate,pray,persecute"
+		},
+		{
+			"book": "Galatians",
+			"chapter": 5,
+			"verse_start": 13,
+			"text": "For, brethren, ye have been called unto liberty; only use not liberty for an occasion to the flesh, but by love serve one another.",
+			"reference": "Galatians 5:13",
+			"keywords": "called,liberty,love,serve,one another"
+		},
+		{
+			"book": "1 John",
+			"chapter": 3,
+			"verse_start": 18,
+			"text": "My little children, let us not love in word, neither in tongue; but in deed and in truth.",
+			"reference": "1 John 3:18",
+			"keywords": "children,love,word,tongue,deed,truth"
+		}
+	]
+}

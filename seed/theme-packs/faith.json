@@ -1,0 +1,208 @@
+{
+	"slug": "faith",
+	"name": "Faith & Trust",
+	"description": "Verses about faith, trust, and believing God",
+	"icon": "🛡️",
+	"verses": [
+		{
+			"book": "Hebrews",
+			"chapter": 11,
+			"verse_start": 1,
+			"text": "Now faith is the substance of things hoped for, the evidence of things not seen.",
+			"reference": "Hebrews 11:1",
+			"keywords": "faith,substance,hoped,evidence,seen"
+		},
+		{
+			"book": "Hebrews",
+			"chapter": 11,
+			"verse_start": 6,
+			"text": "But without faith it is impossible to please him: for he that cometh to God must believe that he is, and that he is a rewarder of them that diligently seek him.",
+			"reference": "Hebrews 11:6",
+			"keywords": "faith,impossible,please,believe,rewarder,seek"
+		},
+		{
+			"book": "Mark",
+			"chapter": 11,
+			"verse_start": 24,
+			"text": "Therefore I say unto you, What things soever ye desire, when ye pray, believe that ye receive them, and ye shall have them.",
+			"reference": "Mark 11:24",
+			"keywords": "desire,pray,believe,receive"
+		},
+		{
+			"book": "Matthew",
+			"chapter": 17,
+			"verse_start": 20,
+			"text": "And Jesus said unto them, Because of your unbelief: for verily I say unto you, If ye have faith as a grain of mustard seed, ye shall say unto this mountain, Remove hence to yonder place; and it shall remove; and nothing shall be impossible unto you.",
+			"reference": "Matthew 17:20",
+			"keywords": "faith,mustard,seed,mountain,impossible"
+		},
+		{
+			"book": "James",
+			"chapter": 1,
+			"verse_start": 6,
+			"text": "But let him ask in faith, nothing wavering. For he that wavereth is like a wave of the sea driven with the wind and tossed.",
+			"reference": "James 1:6",
+			"keywords": "ask,faith,wavering,wave,sea"
+		},
+		{
+			"book": "2 Corinthians",
+			"chapter": 5,
+			"verse_start": 7,
+			"text": "For we walk by faith, not by sight.",
+			"reference": "2 Corinthians 5:7",
+			"keywords": "walk,faith,sight"
+		},
+		{
+			"book": "Romans",
+			"chapter": 1,
+			"verse_start": 17,
+			"text": "For therein is the righteousness of God revealed from faith to faith: as it is written, The just shall live by faith.",
+			"reference": "Romans 1:17",
+			"keywords": "righteousness,revealed,faith,just,live"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 56,
+			"verse_start": 3,
+			"text": "What time I am afraid, I will trust in thee.",
+			"reference": "Psalm 56:3",
+			"keywords": "afraid,trust"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 62,
+			"verse_start": 8,
+			"text": "Trust in him at all times; ye people, pour out your heart before him: God is a refuge for us. Selah.",
+			"reference": "Psalm 62:8",
+			"keywords": "trust,times,heart,refuge"
+		},
+		{
+			"book": "Isaiah",
+			"chapter": 26,
+			"verse_start": 3,
+			"text": "Thou wilt keep him in perfect peace, whose mind is stayed on thee: because he trusteth in thee.",
+			"reference": "Isaiah 26:3",
+			"keywords": "peace,mind,stayed,trust"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 27,
+			"verse_start": 1,
+			"text": "The LORD is my light and my salvation; whom shall I fear? the LORD is the strength of my life; of whom shall I be afraid?",
+			"reference": "Psalm 27:1",
+			"keywords": "light,salvation,fear,strength,afraid"
+		},
+		{
+			"book": "1 Peter",
+			"chapter": 5,
+			"verse_start": 7,
+			"text": "Casting all your care upon him; for he careth for you.",
+			"reference": "1 Peter 5:7",
+			"keywords": "casting,care,careth"
+		},
+		{
+			"book": "Matthew",
+			"chapter": 21,
+			"verse_start": 22,
+			"text": "And all things, whatsoever ye shall ask in prayer, believing, ye shall receive.",
+			"reference": "Matthew 21:22",
+			"keywords": "ask,prayer,believing,receive"
+		},
+		{
+			"book": "James",
+			"chapter": 2,
+			"verse_start": 17,
+			"text": "Even so faith, if it hath not works, is dead, being alone.",
+			"reference": "James 2:17",
+			"keywords": "faith,works,dead,alone"
+		},
+		{
+			"book": "Galatians",
+			"chapter": 5,
+			"verse_start": 22,
+			"text": "But the fruit of the Spirit is love, joy, peace, longsuffering, gentleness, goodness, faith,",
+			"reference": "Galatians 5:22",
+			"keywords": "fruit,Spirit,love,joy,peace"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 118,
+			"verse_start": 8,
+			"text": "It is better to trust in the LORD than to put confidence in man.",
+			"reference": "Psalm 118:8",
+			"keywords": "trust,LORD,confidence,man"
+		},
+		{
+			"book": "Habakkuk",
+			"chapter": 2,
+			"verse_start": 4,
+			"text": "Behold, his soul which is lifted up is not upright in him: but the just shall live by his faith.",
+			"reference": "Habakkuk 2:4",
+			"keywords": "soul,upright,just,live,faith"
+		},
+		{
+			"book": "Mark",
+			"chapter": 9,
+			"verse_start": 23,
+			"text": "Jesus said unto him, If thou canst believe, all things are possible to him that believeth.",
+			"reference": "Mark 9:23",
+			"keywords": "believe,possible"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 34,
+			"verse_start": 8,
+			"text": "O taste and see that the LORD is good: blessed is the man that trusteth in him.",
+			"reference": "Psalm 34:8",
+			"keywords": "taste,see,good,blessed,trust"
+		},
+		{
+			"book": "Romans",
+			"chapter": 15,
+			"verse_start": 13,
+			"text": "Now the God of hope fill you with all joy and peace in believing, that ye may abound in hope, through the power of the Holy Ghost.",
+			"reference": "Romans 15:13",
+			"keywords": "hope,joy,peace,believing,Holy Ghost"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 9,
+			"verse_start": 10,
+			"text": "And they that know thy name will put their trust in thee: for thou, LORD, hast not forsaken them that seek thee.",
+			"reference": "Psalm 9:10",
+			"keywords": "know,name,trust,forsaken,seek"
+		},
+		{
+			"book": "1 John",
+			"chapter": 5,
+			"verse_start": 4,
+			"text": "For whatsoever is born of God overcometh the world: and this is the victory that overcometh the world, even our faith.",
+			"reference": "1 John 5:4",
+			"keywords": "born,God,overcometh,world,victory,faith"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 46,
+			"verse_start": 10,
+			"text": "Be still, and know that I am God: I will be exalted among the heathen, I will be exalted in the earth.",
+			"reference": "Psalm 46:10",
+			"keywords": "still,know,God,exalted"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 28,
+			"verse_start": 7,
+			"text": "The LORD is my strength and my shield; my heart trusted in him, and I am helped: therefore my heart greatly rejoiceth; and with my song will I praise him.",
+			"reference": "Psalm 28:7",
+			"keywords": "strength,shield,heart,trusted,helped,rejoice,praise"
+		},
+		{
+			"book": "Ephesians",
+			"chapter": 6,
+			"verse_start": 16,
+			"text": "Above all, taking the shield of faith, wherewith ye shall be able to quench all the fiery darts of the wicked.",
+			"reference": "Ephesians 6:16",
+			"keywords": "shield,faith,quench,fiery,darts,wicked"
+		}
+	]
+}

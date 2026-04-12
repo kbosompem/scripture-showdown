@@ -1,0 +1,208 @@
+{
+	"slug": "promises",
+	"name": "Promises of God",
+	"description": "Verses about God's promises to His people",
+	"icon": "🌈",
+	"verses": [
+		{
+			"book": "Jeremiah",
+			"chapter": 29,
+			"verse_start": 11,
+			"text": "For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end.",
+			"reference": "Jeremiah 29:11",
+			"keywords": "plans,peace,hope,future"
+		},
+		{
+			"book": "Romans",
+			"chapter": 8,
+			"verse_start": 28,
+			"text": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
+			"reference": "Romans 8:28",
+			"keywords": "good,purpose,love"
+		},
+		{
+			"book": "Philippians",
+			"chapter": 4,
+			"verse_start": 19,
+			"text": "But my God shall supply all your need according to his riches in glory by Christ Jesus.",
+			"reference": "Philippians 4:19",
+			"keywords": "provision,need,riches,glory"
+		},
+		{
+			"book": "Isaiah",
+			"chapter": 41,
+			"verse_start": 10,
+			"text": "Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.",
+			"reference": "Isaiah 41:10",
+			"keywords": "fear,strength,help"
+		},
+		{
+			"book": "Deuteronomy",
+			"chapter": 31,
+			"verse_start": 6,
+			"text": "Be strong and of a good courage, fear not, nor be afraid of them: for the LORD thy God, he it is that doth go with thee; he will not fail thee, nor forsake thee.",
+			"reference": "Deuteronomy 31:6",
+			"keywords": "courage,strength,presence"
+		},
+		{
+			"book": "Proverbs",
+			"chapter": 3,
+			"verse_start": 5,
+			"text": "Trust in the LORD with all thine heart; and lean not unto thine own understanding.",
+			"reference": "Proverbs 3:5",
+			"keywords": "trust,heart,understanding"
+		},
+		{
+			"book": "Proverbs",
+			"chapter": 3,
+			"verse_start": 6,
+			"text": "In all thy ways acknowledge him, and he shall direct thy paths.",
+			"reference": "Proverbs 3:6",
+			"keywords": "acknowledge,direction,paths"
+		},
+		{
+			"book": "Isaiah",
+			"chapter": 40,
+			"verse_start": 31,
+			"text": "But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.",
+			"reference": "Isaiah 40:31",
+			"keywords": "wait,strength,eagles,renew"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 37,
+			"verse_start": 4,
+			"text": "Delight thyself also in the LORD; and he shall give thee the desires of thine heart.",
+			"reference": "Psalm 37:4",
+			"keywords": "delight,desires,heart"
+		},
+		{
+			"book": "Matthew",
+			"chapter": 11,
+			"verse_start": 28,
+			"text": "Come unto me, all ye that labour and are heavy laden, and I will give you rest.",
+			"reference": "Matthew 11:28",
+			"keywords": "rest,burden,labour"
+		},
+		{
+			"book": "2 Corinthians",
+			"chapter": 12,
+			"verse_start": 9,
+			"text": "And he said unto me, My grace is sufficient for thee: for my strength is made perfect in weakness. Most gladly therefore will I rather glory in my infirmities, that the power of Christ may rest upon me.",
+			"reference": "2 Corinthians 12:9",
+			"keywords": "grace,sufficient,weakness,strength"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 46,
+			"verse_start": 1,
+			"text": "God is our refuge and strength, a very present help in trouble.",
+			"reference": "Psalm 46:1",
+			"keywords": "refuge,strength,help,trouble"
+		},
+		{
+			"book": "Romans",
+			"chapter": 8,
+			"verse_start": 38,
+			"text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,",
+			"reference": "Romans 8:38",
+			"keywords": "persuaded,death,life,nothing,separate"
+		},
+		{
+			"book": "Romans",
+			"chapter": 8,
+			"verse_start": 39,
+			"text": "Nor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+			"reference": "Romans 8:39",
+			"keywords": "separate,love,Christ"
+		},
+		{
+			"book": "Joshua",
+			"chapter": 1,
+			"verse_start": 9,
+			"text": "Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest.",
+			"reference": "Joshua 1:9",
+			"keywords": "courage,strong,afraid,presence"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 23,
+			"verse_start": 1,
+			"text": "The LORD is my shepherd; I shall not want.",
+			"reference": "Psalm 23:1",
+			"keywords": "shepherd,want,provision"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 23,
+			"verse_start": 4,
+			"text": "Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me.",
+			"reference": "Psalm 23:4",
+			"keywords": "valley,death,fear,comfort,rod,staff"
+		},
+		{
+			"book": "Isaiah",
+			"chapter": 43,
+			"verse_start": 2,
+			"text": "When thou passest through the waters, I will be with thee; and through the rivers, they shall not overflow thee: when thou walkest through the fire, thou shalt not be burned; neither shall the flame kindle upon thee.",
+			"reference": "Isaiah 43:2",
+			"keywords": "waters,fire,protection,presence"
+		},
+		{
+			"book": "Nahum",
+			"chapter": 1,
+			"verse_start": 7,
+			"text": "The LORD is good, a strong hold in the day of trouble; and he knoweth them that trust in him.",
+			"reference": "Nahum 1:7",
+			"keywords": "good,stronghold,trouble,trust"
+		},
+		{
+			"book": "Philippians",
+			"chapter": 4,
+			"verse_start": 13,
+			"text": "I can do all things through Christ which strengtheneth me.",
+			"reference": "Philippians 4:13",
+			"keywords": "strength,Christ,all things"
+		},
+		{
+			"book": "Lamentations",
+			"chapter": 3,
+			"verse_start": 22,
+			"text": "It is of the LORD's mercies that we are not consumed, because his compassions fail not.",
+			"reference": "Lamentations 3:22",
+			"keywords": "mercy,compassion,consumed"
+		},
+		{
+			"book": "Lamentations",
+			"chapter": 3,
+			"verse_start": 23,
+			"text": "They are new every morning: great is thy faithfulness.",
+			"reference": "Lamentations 3:23",
+			"keywords": "new,morning,faithfulness"
+		},
+		{
+			"book": "Matthew",
+			"chapter": 28,
+			"verse_start": 20,
+			"text": "Teaching them to observe all things whatsoever I have commanded you: and, lo, I am with you alway, even unto the end of the world. Amen.",
+			"reference": "Matthew 28:20",
+			"keywords": "presence,always,end,world"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 91,
+			"verse_start": 1,
+			"text": "He that dwelleth in the secret place of the most High shall abide under the shadow of the Almighty.",
+			"reference": "Psalm 91:1",
+			"keywords": "dwell,secret,shadow,almighty"
+		},
+		{
+			"book": "Psalm",
+			"chapter": 121,
+			"verse_start": 1,
+			"text": "I will lift up mine eyes unto the hills, from whence cometh my help.",
+			"reference": "Psalm 121:1",
+			"keywords": "lift,eyes,hills,help"
+		}
+	]
+}

@@ -1,0 +1,208 @@
+{
+	"slug": "salvation",
+	"name": "Salvation",
+	"description": "The gospel and God's plan of salvation",
+	"icon": "✝️",
+	"verses": [
+		{
+			"book": "John",
+			"chapter": 3,
+			"verse_start": 16,
+			"text": "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+			"reference": "John 3:16",
+			"keywords": "love,world,son,believe,everlasting"
+		},
+		{
+			"book": "Romans",
+			"chapter": 3,
+			"verse_start": 23,
+			"text": "For all have sinned, and come short of the glory of God;",
+			"reference": "Romans 3:23",
+			"keywords": "sin,glory,all"
+		},
+		{
+			"book": "Romans",
+			"chapter": 6,
+			"verse_start": 23,
+			"text": "For the wages of sin is death; but the gift of God is eternal life through Jesus Christ our Lord.",
+			"reference": "Romans 6:23",
+			"keywords": "wages,sin,death,gift,eternal,life"
+		},
+		{
+			"book": "Romans",
+			"chapter": 5,
+			"verse_start": 8,
+			"text": "But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us.",
+			"reference": "Romans 5:8",
+			"keywords": "love,sinners,Christ,died"
+		},
+		{
+			"book": "Romans",
+			"chapter": 10,
+			"verse_start": 9,
+			"text": "That if thou shalt confess with thy mouth the Lord Jesus, and shalt believe in thine heart that God hath raised him from the dead, thou shalt be saved.",
+			"reference": "Romans 10:9",
+			"keywords": "confess,believe,heart,saved,raised"
+		},
+		{
+			"book": "Romans",
+			"chapter": 10,
+			"verse_start": 13,
+			"text": "For whosoever shall call upon the name of the Lord shall be saved.",
+			"reference": "Romans 10:13",
+			"keywords": "call,name,Lord,saved"
+		},
+		{
+			"book": "Ephesians",
+			"chapter": 2,
+			"verse_start": 8,
+			"text": "For by grace are ye saved through faith; and that not of yourselves: it is the gift of God:",
+			"reference": "Ephesians 2:8",
+			"keywords": "grace,saved,faith,gift"
+		},
+		{
+			"book": "Ephesians",
+			"chapter": 2,
+			"verse_start": 9,
+			"text": "Not of works, lest any man should boast.",
+			"reference": "Ephesians 2:9",
+			"keywords": "works,boast"
+		},
+		{
+			"book": "John",
+			"chapter": 14,
+			"verse_start": 6,
+			"text": "Jesus saith unto him, I am the way, the truth, and the life: no man cometh unto the Father, but by me.",
+			"reference": "John 14:6",
+			"keywords": "way,truth,life,Father"
+		},
+		{
+			"book": "Acts",
+			"chapter": 4,
+			"verse_start": 12,
+			"text": "Neither is there salvation in any other: for there is none other name under heaven given among men, whereby we must be saved.",
+			"reference": "Acts 4:12",
+			"keywords": "salvation,name,heaven,saved"
+		},
+		{
+			"book": "John",
+			"chapter": 1,
+			"verse_start": 12,
+			"text": "But as many as received him, to them gave he power to become the sons of God, even to them that believe on his name:",
+			"reference": "John 1:12",
+			"keywords": "received,power,sons,believe,name"
+		},
+		{
+			"book": "2 Corinthians",
+			"chapter": 5,
+			"verse_start": 17,
+			"text": "Therefore if any man be in Christ, he is a new creature: old things are passed away; behold, all things are become new.",
+			"reference": "2 Corinthians 5:17",
+			"keywords": "Christ,new,creature,old,passed"
+		},
+		{
+			"book": "Titus",
+			"chapter": 3,
+			"verse_start": 5,
+			"text": "Not by works of righteousness which we have done, but according to his mercy he saved us, by the washing of regeneration, and renewing of the Holy Ghost;",
+			"reference": "Titus 3:5",
+			"keywords": "works,mercy,saved,regeneration,Holy Ghost"
+		},
+		{
+			"book": "John",
+			"chapter": 3,
+			"verse_start": 17,
+			"text": "For God sent not his Son into the world to condemn the world; but that the world through him might be saved.",
+			"reference": "John 3:17",
+			"keywords": "sent,Son,condemn,saved"
+		},
+		{
+			"book": "1 John",
+			"chapter": 1,
+			"verse_start": 9,
+			"text": "If we confess our sins, he is faithful and just to forgive us our sins, and to cleanse us from all unrighteousness.",
+			"reference": "1 John 1:9",
+			"keywords": "confess,sins,faithful,forgive,cleanse"
+		},
+		{
+			"book": "John",
+			"chapter": 10,
+			"verse_start": 28,
+			"text": "And I give unto them eternal life; and they shall never perish, neither shall any man pluck them out of my hand.",
+			"reference": "John 10:28",
+			"keywords": "eternal,life,perish,hand"
+		},
+		{
+			"book": "Acts",
+			"chapter": 16,
+			"verse_start": 31,
+			"text": "And they said, Believe on the Lord Jesus Christ, and thou shalt be saved, and thy house.",
+			"reference": "Acts 16:31",
+			"keywords": "believe,Lord,Jesus,saved,house"
+		},
+		{
+			"book": "Isaiah",
+			"chapter": 53,
+			"verse_start": 5,
+			"text": "But he was wounded for our transgressions, he was bruised for our iniquities: the chastisement of our peace was upon him; and with his stripes we are healed.",
+			"reference": "Isaiah 53:5",
+			"keywords": "wounded,transgressions,bruised,peace,stripes,healed"
+		},
+		{
+			"book": "1 Peter",
+			"chapter": 3,
+			"verse_start": 18,
+			"text": "For Christ also hath once suffered for sins, the just for the unjust, that he might bring us to God, being put to death in the flesh, but quickened by the Spirit:",
+			"reference": "1 Peter 3:18",
+			"keywords": "Christ,suffered,sins,just,unjust,God"
+		},
+		{
+			"book": "John",
+			"chapter": 5,
+			"verse_start": 24,
+			"text": "Verily, verily, I say unto you, He that heareth my word, and believeth on him that sent me, hath everlasting life, and shall not come into condemnation; but is passed from death unto life.",
+			"reference": "John 5:24",
+			"keywords": "hear,believe,everlasting,condemnation,death,life"
+		},
+		{
+			"book": "Hebrews",
+			"chapter": 9,
+			"verse_start": 22,
+			"text": "And almost all things are by the law purged with blood; and without shedding of blood is no remission.",
+			"reference": "Hebrews 9:22",
+			"keywords": "blood,purged,shedding,remission"
+		},
+		{
+			"book": "John",
+			"chapter": 11,
+			"verse_start": 25,
+			"text": "Jesus said unto her, I am the resurrection, and the life: he that believeth in me, though he were dead, yet shall he live:",
+			"reference": "John 11:25",
+			"keywords": "resurrection,life,believe,dead,live"
+		},
+		{
+			"book": "Romans",
+			"chapter": 10,
+			"verse_start": 17,
+			"text": "So then faith cometh by hearing, and hearing by the word of God.",
+			"reference": "Romans 10:17",
+			"keywords": "faith,hearing,word,God"
+		},
+		{
+			"book": "Galatians",
+			"chapter": 2,
+			"verse_start": 20,
+			"text": "I am crucified with Christ: nevertheless I live; yet not I, but Christ liveth in me: and the life which I now live in the flesh I live by the faith of the Son of God, who loved me, and gave himself for me.",
+			"reference": "Galatians 2:20",
+			"keywords": "crucified,Christ,live,faith,Son,loved"
+		},
+		{
+			"book": "1 John",
+			"chapter": 5,
+			"verse_start": 13,
+			"text": "These things have I written unto you that believe on the name of the Son of God; that ye may know that ye have eternal life, and that ye may believe on the name of the Son of God.",
+			"reference": "1 John 5:13",
+			"keywords": "written,believe,name,Son,eternal,life,know"
+		}
+	]
+}
