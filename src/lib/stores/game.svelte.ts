@@ -83,7 +83,7 @@ export const gameStore = {
 	setPlayers(p: Player[]) { players = p; totalPlayers = p.filter(pl => pl.connected).length; },
 	setCountdown(c: number) { countdown = c; },
 	setTimer(t: number) { timer = t; },
-	setTvQuestion(q: QuestionForTV) { tvQuestion = q; hasAnswered = false; myFeedback = null; speedRecallHidden = false; },
+	setTvQuestion(q: QuestionForTV) { tvQuestion = q; phase = 'ANSWERING'; currentRound = q.round; totalRounds = q.totalRounds; hasAnswered = false; myFeedback = null; speedRecallHidden = false; },
 	setPhoneQuestion(q: QuestionForPhone) { phoneQuestion = q; hasAnswered = false; myFeedback = null; speedRecallHidden = false; },
 	setAnsweredCount(count: number, total: number) { answeredCount = count; totalPlayers = total; },
 	setRevealData(data: RevealData) { revealData = data; phase = 'REVEAL'; },
