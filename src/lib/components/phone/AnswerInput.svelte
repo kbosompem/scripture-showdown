@@ -12,10 +12,11 @@
 	// Free text: single textarea
 	let textAnswer = $state('');
 
-	// Name That Reference: book/chapter/verse
+	// Name That Reference: step-based selector
 	let selectedBook = $state('');
 	let selectedChapter = $state('');
 	let selectedVerse = $state('');
+	let refStep = $state<'book' | 'chapter' | 'verse'>('book');
 
 	let mode = $derived(gameStore.phoneQuestion?.mode);
 	let showVerseForRecall = $derived(mode === 'speed-recall' && !gameStore.speedRecallHidden);
@@ -44,16 +45,70 @@
 	import bibleStructure from '$lib/data/bible-structure.json';
 
 	let books = bibleStructure.books.map(b => b.name);
-	let chapters = $derived(
+	let chapterCount = $derived(
 		selectedBook
-			? Array.from({ length: bibleStructure.books.find(b => b.name === selectedBook)?.chapters.length || 0 }, (_, i) => i + 1)
-			: []
+			? bibleStructure.books.find(b => b.name === selectedBook)?.chapters.length || 0
+			: 0
 	);
-	let verses = $derived(
+	let verseCount = $derived(
 		selectedBook && selectedChapter
-			? Array.from({ length: bibleStructure.books.find(b => b.name === selectedBook)?.chapters[parseInt(selectedChapter) - 1] || 0 }, (_, i) => i + 1)
-			: []
+			? bibleStructure.books.find(b => b.name === selectedBook)?.chapters[parseInt(selectedChapter) - 1] || 0
+			: 0
 	);
+
+	function selectBook(book: string) {
+		selectedBook = book;
+		selectedChapter = '';
+		selectedVerse = '';
+		refStep = 'chapter';
+	}
+
+	function selectChapter(ch: number) {
+		selectedChapter = String(ch);
+		selectedVerse = '';
+		refStep = 'verse';
+	}
+
+	function selectVerse(v: number) {
+		selectedVerse = String(v);
+	}
+
+	function goBackToBooks() {
+		selectedBook = '';
+		selectedChapter = '';
+		selectedVerse = '';
+		refStep = 'book';
+	}
+
+	function goBackToChapters() {
+		selectedChapter = '';
+		selectedVerse = '';
+		refStep = 'chapter';
+	}
+
+	// Short book name for grid display
+	function shortName(name: string): string {
+		const abbrevs: Record<string, string> = {
+			'Genesis': 'Gen', 'Exodus': 'Exod', 'Leviticus': 'Lev', 'Numbers': 'Num',
+			'Deuteronomy': 'Deut', 'Joshua': 'Josh', 'Judges': 'Judg', 'Ruth': 'Ruth',
+			'1 Samuel': '1 Sam', '2 Samuel': '2 Sam', '1 Kings': '1 Kgs', '2 Kings': '2 Kgs',
+			'1 Chronicles': '1 Chr', '2 Chronicles': '2 Chr', 'Ezra': 'Ezra', 'Nehemiah': 'Neh',
+			'Esther': 'Esth', 'Job': 'Job', 'Psalms': 'Ps', 'Proverbs': 'Prov',
+			'Ecclesiastes': 'Eccl', 'Song of Solomon': 'Song', 'Isaiah': 'Isa', 'Jeremiah': 'Jer',
+			'Lamentations': 'Lam', 'Ezekiel': 'Ezek', 'Daniel': 'Dan', 'Hosea': 'Hos',
+			'Joel': 'Joel', 'Amos': 'Amos', 'Obadiah': 'Obad', 'Jonah': 'Jonah',
+			'Micah': 'Mic', 'Nahum': 'Nah', 'Habakkuk': 'Hab', 'Zephaniah': 'Zeph',
+			'Haggai': 'Hag', 'Zechariah': 'Zech', 'Malachi': 'Mal',
+			'Matthew': 'Matt', 'Mark': 'Mark', 'Luke': 'Luke', 'John': 'John',
+			'Acts': 'Acts', 'Romans': 'Rom', '1 Corinthians': '1 Cor', '2 Corinthians': '2 Cor',
+			'Galatians': 'Gal', 'Ephesians': 'Eph', 'Philippians': 'Phil', 'Colossians': 'Col',
+			'1 Thessalonians': '1 Thes', '2 Thessalonians': '2 Thes', '1 Timothy': '1 Tim',
+			'2 Timothy': '2 Tim', 'Titus': 'Titus', 'Philemon': 'Phlm', 'Hebrews': 'Heb',
+			'James': 'Jas', '1 Peter': '1 Pet', '2 Peter': '2 Pet', '1 John': '1 Jn',
+			'2 John': '2 Jn', '3 John': '3 Jn', 'Jude': 'Jude', 'Revelation': 'Rev'
+		};
+		return abbrevs[name] || name;
+	}
 </script>
 
 <div class="answer-screen">
@@ -82,7 +137,7 @@
 				<p class="input-instruction">Type the missing words</p>
 				{#each gapAnswers as _, i}
 					<div class="gap-field">
-						<label class="gap-label">{i + 1}.</label>
+						<span class="gap-label">{i + 1}.</span>
 						<input
 							type="text"
 							class="input"
@@ -95,29 +150,59 @@
 				{/each}
 
 			{:else if mode === 'name-that-reference'}
-				<p class="input-instruction">Select Book, Chapter & Verse</p>
-				<select class="input select" bind:value={selectedBook}>
-					<option value="">Book...</option>
-					{#each books as book}
-						<option value={book}>{book}</option>
-					{/each}
-				</select>
-				<div class="chapter-verse-row">
-					<select class="input select" bind:value={selectedChapter} disabled={!selectedBook}>
-						<option value="">Ch.</option>
-						{#each chapters as ch}
-							<option value={String(ch)}>{ch}</option>
+				{#if refStep === 'book'}
+					<p class="input-instruction">Select a Book</p>
+					<div class="book-grid">
+						{#each books as book (book)}
+							<button
+								type="button"
+								class="grid-btn book-btn"
+								onclick={() => selectBook(book)}
+							>
+								{shortName(book)}
+							</button>
 						{/each}
-					</select>
-					<select class="input select" bind:value={selectedVerse} disabled={!selectedChapter}>
-						<option value="">V.</option>
-						{#each verses as v}
-							<option value={String(v)}>{v}</option>
+					</div>
+
+				{:else if refStep === 'chapter'}
+					<div class="step-header">
+						<button type="button" class="back-btn" onclick={goBackToBooks}>&#8592; Books</button>
+						<span class="step-selection">{selectedBook}</span>
+					</div>
+					<p class="input-instruction">Select Chapter</p>
+					<div class="num-grid">
+						{#each Array.from({ length: chapterCount }, (_, i) => i + 1) as ch (ch)}
+							<button
+								type="button"
+								class="grid-btn num-btn"
+								onclick={() => selectChapter(ch)}
+							>
+								{ch}
+							</button>
 						{/each}
-					</select>
-				</div>
-				{#if selectedBook && selectedChapter && selectedVerse}
-					<p class="preview-ref">{selectedBook} {selectedChapter}:{selectedVerse}</p>
+					</div>
+
+				{:else if refStep === 'verse'}
+					<div class="step-header">
+						<button type="button" class="back-btn" onclick={goBackToChapters}>&#8592; Ch.</button>
+						<span class="step-selection">{selectedBook} {selectedChapter}</span>
+					</div>
+					<p class="input-instruction">Select Verse</p>
+					<div class="num-grid">
+						{#each Array.from({ length: verseCount }, (_, i) => i + 1) as v (v)}
+							<button
+								type="button"
+								class="grid-btn num-btn"
+								class:selected-num={selectedVerse === String(v)}
+								onclick={() => selectVerse(v)}
+							>
+								{v}
+							</button>
+						{/each}
+					</div>
+					{#if selectedVerse}
+						<p class="preview-ref">{selectedBook} {selectedChapter}:{selectedVerse}</p>
+					{/if}
 				{/if}
 
 			{:else if mode === 'quote-it'}
@@ -143,9 +228,11 @@
 		</div>
 
 		<div class="action-buttons">
-			<button class="btn btn-primary submit-btn" onclick={submit}>
-				Submit
-			</button>
+			{#if mode !== 'name-that-reference' || selectedVerse}
+				<button class="btn btn-primary submit-btn" onclick={submit}>
+					Submit
+				</button>
+			{/if}
 			<button class="btn btn-secondary skip-btn" onclick={skip}>
 				I don't know
 			</button>
@@ -236,6 +323,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.75rem;
+		overflow-y: auto;
 	}
 
 	.input-instruction {
@@ -257,17 +345,86 @@
 		width: 2rem;
 	}
 
-	.select {
-		appearance: auto;
+	/* ── Book grid (7 columns) ── */
+	.book-grid {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		gap: 0.3rem;
 	}
 
-	.chapter-verse-row {
+	.grid-btn {
+		border: 2px solid var(--color-border);
+		border-radius: 0.375rem;
+		background: var(--color-card);
+		cursor: pointer;
+		font-weight: 600;
+		color: var(--color-ink);
+		transition: all 100ms ease;
+		text-align: center;
+	}
+
+	.grid-btn:active {
+		transform: scale(0.95);
+		background: var(--color-accent);
+		color: white;
+		border-color: var(--color-accent);
+	}
+
+	.book-btn {
+		padding: 0.4rem 0.15rem;
+		font-size: 0.65rem;
+		min-height: 48px;
 		display: flex;
-		gap: 0.75rem;
+		align-items: center;
+		justify-content: center;
 	}
 
-	.chapter-verse-row .select {
-		flex: 1;
+	/* ── Number grid (7 columns for ch/verse) ── */
+	.num-grid {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		gap: 0.35rem;
+	}
+
+	.num-btn {
+		padding: 0.5rem 0.25rem;
+		font-size: 0.95rem;
+		min-height: 48px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.selected-num {
+		background: var(--color-accent);
+		color: white;
+		border-color: var(--color-accent);
+	}
+
+	/* ── Step navigation ── */
+	.step-header {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 0.25rem;
+	}
+
+	.back-btn {
+		background: var(--color-card);
+		border: 2px solid var(--color-border);
+		border-radius: 0.375rem;
+		padding: 0.4rem 0.75rem;
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--color-accent);
+		cursor: pointer;
+		min-height: 48px;
+	}
+
+	.step-selection {
+		font-size: 1.125rem;
+		font-weight: 700;
+		color: var(--color-accent);
 	}
 
 	.preview-ref {

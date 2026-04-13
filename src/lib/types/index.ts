@@ -266,7 +266,7 @@ export const SCORING = {
 	STREAK_MULTIPLIERS: [1.0, 1.0, 1.1, 1.2, 1.3, 1.5] as const, // index = streak count, 5+ = 1.5
 	TIME_LIMITS: {
 		'fill-the-gap': 30,
-		'name-that-reference': 20,
+		'name-that-reference': 29,
 		'quote-it': 45,
 		'speed-recall': 50 // 5s display + 45s typing
 	} as const,

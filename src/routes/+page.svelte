@@ -51,6 +51,7 @@
 	<div class="quick-links">
 		<a href="/tv" class="btn btn-primary">Open TV Display</a>
 		<a href="/play" class="btn btn-secondary">Join as Player</a>
+		<a href="/leaderboard" class="btn btn-secondary">Leaderboard</a>
 	</div>
 
 	<div class="game-modes">
