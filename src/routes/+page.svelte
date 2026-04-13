@@ -72,11 +72,6 @@
 				<h3>Quote It</h3>
 				<p>Pick the missing words from multiple choices</p>
 			</div>
-			<div class="mode-card">
-				<span class="mode-icon">&#9889;</span>
-				<h3>Speed Recall</h3>
-				<p>Memorize a verse in 5 seconds, then reconstruct it</p>
-			</div>
 		</div>
 	</div>
 </div>

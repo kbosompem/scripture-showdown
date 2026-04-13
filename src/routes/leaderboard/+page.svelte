@@ -51,8 +51,7 @@
 	const MODE_LABELS: Record<string, string> = {
 		'fill-the-gap': 'Fill the Gap',
 		'name-that-reference': 'Name That Reference',
-		'quote-it': 'Quote It',
-		'speed-recall': 'Speed Recall'
+		'quote-it': 'Quote It'
 	};
 </script>
 

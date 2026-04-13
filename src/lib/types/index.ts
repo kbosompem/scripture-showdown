@@ -11,13 +11,12 @@ export type GamePhase =
 	| 'SCORES'
 	| 'FINAL';
 
-export type GameMode = 'fill-the-gap' | 'name-that-reference' | 'quote-it' | 'speed-recall';
+export type GameMode = 'fill-the-gap' | 'name-that-reference' | 'quote-it';
 
 export const GAME_MODE_LABELS: Record<GameMode, string> = {
 	'fill-the-gap': 'Fill the Gap',
 	'name-that-reference': 'Name That Reference',
-	'quote-it': 'Quote It',
-	'speed-recall': 'Speed Recall'
+	'quote-it': 'Quote It'
 };
 
 export const PLAYER_AVATARS = [
@@ -119,19 +118,10 @@ export interface QuoteItQuestion {
 	wordChoices: string[][]; // per-blank array of word options
 }
 
-export interface SpeedRecallQuestion {
-	mode: 'speed-recall';
-	verseId: number;
-	text: string;
-	reference: string;
-	correctText: string;
-}
-
 export type Question =
 	| FillTheGapQuestion
 	| NameThatReferenceQuestion
-	| QuoteItQuestion
-	| SpeedRecallQuestion;
+	| QuoteItQuestion;
 
 // What the TV sees (no answers)
 export interface QuestionForTV {
@@ -145,8 +135,6 @@ export interface QuestionForTV {
 	blankCount?: number;
 	// Name That Reference
 	text?: string;
-	// Speed Recall
-	// text and reference already covered
 }
 
 // What the phone sees (input context)
@@ -242,8 +230,10 @@ export interface ClientEvents {
 	'player:join': (data: { name: string; avatar: Avatar; teamCode?: string }) => void;
 	'player:reconnect': (data: { playerId: string }) => void;
 	'player:leave': () => void;
+	'player:quit': () => void;
 	'tv:connect': () => void;
 	'game:start': (data: { packSlug: string; mode: GameMode; numRounds: number }) => void;
+	'game:kill': () => void;
 	'answer:submit': (data: { roundNumber: number; answer: string | string[]; timeMs: number }) => void;
 	'game:play-again': () => void;
 }
@@ -263,7 +253,7 @@ export interface ServerEvents {
 	'player:feedback': (data: ScoredAnswer) => void;
 	'player:joined': (data: { playerId: string }) => void;
 	'player:error': (data: { message: string }) => void;
-	'game:speed-recall-hide': () => void;
+	'player:kicked': () => void;
 }
 
 // ── Scoring Constants ────────────────────────────────────────
@@ -274,15 +264,12 @@ export const SCORING = {
 	NAME_THAT_REF_BOOK_CHAPTER: 500,
 	NAME_THAT_REF_BOOK_ONLY: 250,
 	QUOTE_IT_MAX: 1000,
-	SPEED_RECALL_MAX: 1500,
 	SPEED_BONUS_MAX: 500,
 	STREAK_MULTIPLIERS: [1.0, 1.0, 1.1, 1.2, 1.3, 1.5] as const,
 	TIME_LIMITS: {
 		'fill-the-gap': 30,
 		'name-that-reference': 29,
-		'quote-it': 45,
-		'speed-recall': 50
+		'quote-it': 45
 	} as const,
-	SPEED_RECALL_DISPLAY_TIME: 5,
 	POST_GAME_COUNTDOWN: 45
 } as const;

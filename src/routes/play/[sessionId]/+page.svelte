@@ -3,7 +3,8 @@
 	import { page } from '$app/state';
 	import { getSocket, disconnectSocket, savePlayerInfo, getSavedPlayerInfo } from '$lib/stores/socket.js';
 	import { gameStore } from '$lib/stores/game.svelte.js';
-	import { initAudio, notifyNewQuestion, notifyCorrect, notifyWrong } from '$lib/utils/vibration.js';
+	import { initAudio, notifyNewQuestion, notifyCorrect, notifyWrong, notifyCountdown, notifyTimerLow, notifyGameOver } from '$lib/utils/vibration.js';
+	import { clearSavedPlayer } from '$lib/stores/socket.js';
 	import JoinForm from '$lib/components/phone/JoinForm.svelte';
 	import WaitingRoom from '$lib/components/phone/WaitingRoom.svelte';
 	import AnswerInput from '$lib/components/phone/AnswerInput.svelte';
@@ -33,6 +34,7 @@
 		socket.on('game:countdown', (data) => {
 			gameStore.setPhase('COUNTDOWN');
 			gameStore.setCountdown(data.seconds);
+			notifyCountdown();
 		});
 		socket.on('game:phone-question', (data) => {
 			gameStore.setPhoneQuestion(data);
@@ -40,12 +42,17 @@
 			startTimeMs = Date.now();
 			notifyNewQuestion();
 		});
-		socket.on('game:timer', (data) => gameStore.setTimer(data.remaining));
+		socket.on('game:timer', (data) => {
+			gameStore.setTimer(data.remaining);
+			if (data.remaining > 0 && data.remaining <= 5) notifyTimerLow();
+		});
 		socket.on('game:player-answered', (data) => gameStore.setAnsweredCount(data.answeredCount, data.totalPlayers));
 		socket.on('game:reveal', (data) => gameStore.setRevealData(data));
 		socket.on('game:scores', (data) => gameStore.setLeaderboard(data.leaderboard));
-		socket.on('game:final', (data) => gameStore.setFinalData(data));
-		socket.on('game:speed-recall-hide', () => gameStore.setSpeedRecallHidden());
+		socket.on('game:final', (data) => {
+			gameStore.setFinalData(data);
+			notifyGameOver();
+		});
 		socket.on('game:next-countdown', (data) => gameStore.setPostGameCountdown(data.seconds));
 
 		socket.on('player:joined', (data) => {
@@ -123,6 +130,16 @@
 	function handlePlayAgain() {
 		socket.emit('game:play-again');
 	}
+
+	function handleQuit() {
+		socket.emit('player:quit');
+		clearSavedPlayer();
+		joined = false;
+		playerId = null;
+		gameStore.reset();
+		// Navigate to /play to join another game
+		window.location.href = '/play';
+	}
 </script>
 
 <svelte:head>
@@ -138,6 +155,7 @@
 			canStart={gameStore.players.filter(p => p.connected).length > 0}
 			{packs}
 		/>
+		<button class="quit-btn" onclick={handleQuit}>Leave Game</button>
 	{:else if gameStore.phase === 'COUNTDOWN'}
 		<div class="countdown-phone">
 			{#key gameStore.countdown}
@@ -181,6 +199,7 @@
 			<button class="btn btn-primary play-again-btn" onclick={handlePlayAgain}>
 				Play Again Now
 			</button>
+			<button class="quit-btn" onclick={handleQuit}>Leave Game</button>
 		</div>
 	{/if}
 
@@ -303,6 +322,26 @@
 		color: white;
 		font-size: 1.5rem;
 		cursor: pointer;
+	}
+
+	.quit-btn {
+		width: 100%;
+		padding: 0.75rem;
+		margin-top: 0.5rem;
+		background: none;
+		border: 2px solid var(--color-border);
+		border-radius: 0.5rem;
+		color: var(--color-ink-muted);
+		font-size: 1rem;
+		font-weight: 600;
+		cursor: pointer;
+		min-height: 48px;
+	}
+
+	.quit-btn:active {
+		background: var(--color-wrong);
+		color: white;
+		border-color: var(--color-wrong);
 	}
 
 	.connection-bar {

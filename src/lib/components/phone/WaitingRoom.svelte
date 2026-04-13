@@ -20,8 +20,7 @@
 	const modes: { value: GameMode; label: string }[] = [
 		{ value: 'fill-the-gap', label: 'Fill the Gap' },
 		{ value: 'name-that-reference', label: 'Name That Reference' },
-		{ value: 'quote-it', label: 'Quote It' },
-		{ value: 'speed-recall', label: 'Speed Recall' }
+		{ value: 'quote-it', label: 'Quote It' }
 	];
 
 	function handleStart() {

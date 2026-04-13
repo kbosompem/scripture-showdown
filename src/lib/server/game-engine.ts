@@ -2,8 +2,7 @@ import type {
 	GamePhase, GameMode, GameState, Player, Avatar, Question,
 	QuestionForTV, QuestionForPhone, PlayerAnswer, ScoredAnswer,
 	LeaderboardEntry, RevealData, FinalData,
-	FillTheGapQuestion, NameThatReferenceQuestion, QuoteItQuestion,
-	SpeedRecallQuestion
+	FillTheGapQuestion, NameThatReferenceQuestion, QuoteItQuestion
 } from '../types/index.js';
 import { SCORING } from '../types/index.js';
 import { generateQuestion, getVersesForPack, pickRandomVerses } from './question-generator.js';
@@ -184,13 +183,6 @@ export class GameEngine {
 			this.emitTo(player.socketId, 'game:phone-question', phoneQuestion);
 		}
 
-		if (this.currentQuestion.mode === 'speed-recall') {
-			const hideTimer = setTimeout(() => {
-				this.broadcast('game:speed-recall-hide', {});
-			}, SCORING.SPEED_RECALL_DISPLAY_TIME * 1000);
-			this.timers.push(hideTimer);
-		}
-
 		this.phase = 'ANSWERING';
 		this.startQuestionTimer();
 	}
@@ -361,6 +353,41 @@ export class GameEngine {
 		}
 	}
 
+	/** Fully remove a player (quit, not just disconnect) */
+	removePlayer(socketId: string): Player | null {
+		for (const [id, player] of this.players) {
+			if (player.socketId === socketId) {
+				this.players.delete(id);
+				return player;
+			}
+		}
+		return null;
+	}
+
+	/** Host kills the game — reset to lobby */
+	killGame(): void {
+		this.clearTimers();
+		this.phase = 'LOBBY';
+		this.currentRound = 0;
+		this.questions = [];
+		this.currentQuestion = null;
+		this.answers.clear();
+		this.roundAnswers.clear();
+		this.mode = null;
+		this.postGameRemaining = 0;
+
+		for (const player of this.players.values()) {
+			player.score = 0;
+			player.streak = 0;
+		}
+
+		this.broadcast('game:state', this.getFullState());
+		this.broadcast('lobby:update', {
+			players: Array.from(this.players.values()),
+			canStart: this.getActivePlayers().length > 0
+		});
+	}
+
 	playAgain(): void {
 		this.clearTimers();
 		this.phase = 'LOBBY';
@@ -455,19 +482,7 @@ export class GameEngine {
 				isCorrect = accuracyPct >= 1.0;
 				break;
 			}
-			case 'speed-recall': {
-				const sr = q as SpeedRecallQuestion;
-				answerText = String(answer.answer);
-				accuracyPct = fuzzyMatch(sr.correctText, answerText);
-				if (accuracyPct >= 0.9) {
-					basePoints = SCORING.SPEED_RECALL_MAX;
-					isCorrect = true;
-				} else if (accuracyPct >= 0.5) {
-					basePoints = Math.floor(SCORING.SPEED_RECALL_MAX * accuracyPct);
-				}
-				break;
 			}
-		}
 
 		const speedBonus =
 			basePoints > 0
@@ -517,8 +532,6 @@ export class GameEngine {
 				const qi = q as QuoteItQuestion;
 				return { ...base, reference: qi.reference, textWithBlanks: qi.textWithBlanks, blankCount: qi.blankCount };
 			}
-			case 'speed-recall':
-				return { ...base, text: (q as SpeedRecallQuestion).text, reference: (q as SpeedRecallQuestion).reference };
 		}
 	}
 
@@ -540,8 +553,6 @@ export class GameEngine {
 				const qi = q as QuoteItQuestion;
 				return { ...base, reference: qi.reference, textWithBlanks: qi.textWithBlanks, blankCount: qi.blankCount, wordChoices: qi.wordChoices };
 			}
-			case 'speed-recall':
-				return { ...base, text: (q as SpeedRecallQuestion).text, reference: (q as SpeedRecallQuestion).reference };
 		}
 	}
 
@@ -573,14 +584,7 @@ export class GameEngine {
 				fullVerseText = qi.correctText;
 				break;
 			}
-			case 'speed-recall': {
-				const sr = q as SpeedRecallQuestion;
-				correctAnswer = sr.correctText;
-				correctReference = sr.reference;
-				fullVerseText = sr.correctText;
-				break;
 			}
-		}
 
 		return {
 			correctAnswer,

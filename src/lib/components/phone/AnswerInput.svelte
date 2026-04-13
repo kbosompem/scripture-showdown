@@ -9,9 +9,6 @@
 		Array(gameStore.phoneQuestion?.blankCount || 4).fill('')
 	);
 
-	// Free text: single textarea
-	let textAnswer = $state('');
-
 	// Quote-it: word choice selections
 	let quoteSelections = $state<string[]>(
 		Array(gameStore.phoneQuestion?.blankCount || 3).fill('')
@@ -25,7 +22,6 @@
 	let selectedTestament = $state<'OT' | 'NT' | ''>('');
 
 	let mode = $derived(gameStore.phoneQuestion?.mode);
-	let showVerseForRecall = $derived(mode === 'speed-recall' && !gameStore.speedRecallHidden);
 
 	function submit() {
 		if (gameStore.hasAnswered) return;
@@ -36,8 +32,6 @@
 			onSubmit(`${selectedBook} ${selectedChapter}:${selectedVerse}`);
 		} else if (mode === 'quote-it') {
 			onSubmit(quoteSelections);
-		} else {
-			onSubmit(textAnswer);
 		}
 	}
 
@@ -46,7 +40,7 @@
 			onSubmit(Array(gapAnswers.length).fill(''));
 		} else if (mode === 'quote-it') {
 			onSubmit(Array(quoteSelections.length).fill(''));
-		} else {
+		} else if (mode === 'name-that-reference') {
 			onSubmit('');
 		}
 	}
@@ -137,14 +131,6 @@
 			<span class="check">&#10003;</span>
 			<p>Answer submitted!</p>
 			<p class="waiting-reveal">Waiting for results...</p>
-		</div>
-	{:else if showVerseForRecall}
-		<div class="recall-display">
-			<p class="recall-instruction">Memorize this verse!</p>
-			<p class="recall-verse">&ldquo;{gameStore.phoneQuestion?.text}&rdquo;</p>
-			{#if gameStore.phoneQuestion?.reference}
-				<p class="recall-ref">&mdash; {gameStore.phoneQuestion.reference}</p>
-			{/if}
 		</div>
 	{:else}
 		<div class="input-area">
@@ -269,15 +255,6 @@
 					</div>
 				{/each}
 
-			{:else if mode === 'speed-recall'}
-				<p class="input-instruction">Write what you remember!</p>
-				<textarea
-					class="input textarea"
-					bind:value={textAnswer}
-					placeholder="Type the verse from memory..."
-					rows="5"
-				></textarea>
-				<p class="fuzzy-note">Typos are OK — fuzzy matching is on</p>
 			{/if}
 		</div>
 
@@ -332,20 +309,6 @@
 	.check { font-size: 3rem; color: var(--color-correct); }
 	.submitted-msg p { font-size: 1.25rem; color: var(--color-ink); font-weight: 600; }
 	.waiting-reveal { color: var(--color-ink-muted) !important; font-weight: 400 !important; }
-
-	.recall-display {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 1rem;
-		padding: 1rem;
-	}
-
-	.recall-instruction { font-size: 1.25rem; color: var(--color-accent); font-weight: 700; }
-	.recall-verse { font-family: var(--font-verse); font-size: 1.25rem; line-height: 1.8; color: var(--color-ink-verse); text-align: center; }
-	.recall-ref { font-style: italic; color: var(--color-ink-muted); }
 
 	.input-area {
 		flex: 1;
@@ -528,14 +491,6 @@
 		color: white;
 		border-color: var(--color-accent);
 	}
-
-	.textarea {
-		resize: none;
-		font-family: var(--font-verse);
-		line-height: 1.6;
-	}
-
-	.fuzzy-note { font-size: 0.75rem; color: var(--color-ink-muted); text-align: center; }
 
 	.action-buttons {
 		display: flex;

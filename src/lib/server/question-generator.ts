@@ -1,4 +1,4 @@
-import type { Verse, Question, FillTheGapQuestion, NameThatReferenceQuestion, QuoteItQuestion, SpeedRecallQuestion, GameMode } from '../types/index.js';
+import type { Verse, Question, FillTheGapQuestion, NameThatReferenceQuestion, QuoteItQuestion, GameMode } from '../types/index.js';
 import { getDb } from './db.js';
 
 // Words to skip when creating blanks (too easy / not meaningful)
@@ -34,8 +34,6 @@ export function generateQuestion(verse: Verse, mode: GameMode, allVerses?: Verse
 			return generateNameThatReference(verse);
 		case 'quote-it':
 			return generateQuoteIt(verse, allVerses || []);
-		case 'speed-recall':
-			return generateSpeedRecall(verse);
 	}
 }
 
@@ -154,16 +152,6 @@ function generateQuoteIt(verse: Verse, allVerses: Verse[]): QuoteItQuestion {
 		blanks,
 		blankCount: blanks.length,
 		wordChoices
-	};
-}
-
-function generateSpeedRecall(verse: Verse): SpeedRecallQuestion {
-	return {
-		mode: 'speed-recall',
-		verseId: verse.id,
-		text: verse.text,
-		reference: verse.reference,
-		correctText: verse.text
 	};
 }
 

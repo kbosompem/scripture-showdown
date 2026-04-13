@@ -46,16 +46,6 @@
 			{/if}
 			<p class="instruction">Fill in the missing words</p>
 
-		{:else if q?.mode === 'speed-recall'}
-			{#if !gameStore.speedRecallHidden}
-				<p class="verse-display">&ldquo;{q.text}&rdquo;</p>
-				{#if q.reference}
-					<p class="verse-ref">&mdash; {q.reference}</p>
-				{/if}
-				<p class="memorize-warning">Memorize this verse!</p>
-			{:else}
-				<p class="hidden-verse">Verse hidden &mdash; write what you remember!</p>
-			{/if}
 		{/if}
 	</main>
 
@@ -145,20 +135,6 @@
 	}
 
 	.instruction { font-size: 1.75rem; color: var(--color-ink-muted); }
-
-	.memorize-warning {
-		font-size: 1.5rem;
-		color: var(--color-accent);
-		font-weight: 700;
-		animation: pulse 0.8s ease-in-out infinite alternate;
-	}
-
-	.hidden-verse { font-size: 2.5rem; color: var(--color-ink-muted); font-style: italic; }
-
-	@keyframes pulse {
-		from { opacity: 0.7; }
-		to { opacity: 1; }
-	}
 
 	.question-footer {
 		display: flex;

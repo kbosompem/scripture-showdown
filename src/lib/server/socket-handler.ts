@@ -195,9 +195,27 @@ export function setupSocketHandlers(io: Server): void {
 			}
 		});
 
-		// ── Player leaves ────────────────────────────────
+		// ── Player leaves (disconnect) ───────────────────
 		socket.on('player:leave', () => {
 			handleDisconnect(socket, io);
+		});
+
+		// ── Player quits (fully removes from game) ──────
+		socket.on('player:quit', () => {
+			const sess = getSessionForSocket(socket.id);
+			if (sess) {
+				const removed = sess.engine.removePlayer(socket.id);
+				if (removed) {
+					console.log(`[socket] player quit session ${sess.sessionId}: ${removed.name}`);
+				}
+				socket.leave(`session:${sess.sessionId}`);
+				socketToSession.delete(socket.id);
+
+				io.to(`session:${sess.sessionId}`).emit('lobby:update', {
+					players: Array.from(sess.engine.players.values()),
+					canStart: sess.engine.getActivePlayers().length > 0
+				});
+			}
 		});
 
 		socket.on('disconnect', () => {
@@ -223,6 +241,15 @@ export function setupSocketHandlers(io: Server): void {
 			if (!success) {
 				socket.emit('player:error', { message: 'Failed to start game. Check verse pack.' });
 			}
+		});
+
+		// ── Kill game (host ends it early) ──────────────
+		socket.on('game:kill', () => {
+			const sess = getSessionForSocket(socket.id);
+			if (!sess) return;
+
+			console.log(`[socket] game killed in session ${sess.sessionId}`);
+			sess.engine.killGame();
 		});
 
 		// ── Submit answer ────────────────────────────────

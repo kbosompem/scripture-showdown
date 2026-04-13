@@ -1,5 +1,5 @@
 /**
- * Fuzzy matching for "Quote It" and "Speed Recall" modes.
+ * Fuzzy matching for answer comparison.
  * Combines character-level Levenshtein distance with word-level overlap.
  */
 

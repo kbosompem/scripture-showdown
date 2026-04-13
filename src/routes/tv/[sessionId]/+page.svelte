@@ -12,9 +12,18 @@
 	import MiniQR from '$lib/components/tv/MiniQR.svelte';
 
 	let sessionId = $derived(page.params.sessionId);
+	let socket: ReturnType<typeof getSocket>;
+
+	function handleKillGame() {
+		socket.emit('game:kill');
+	}
+
+	let isGameActive = $derived(
+		gameStore.phase !== 'IDLE' && gameStore.phase !== 'LOBBY'
+	);
 
 	onMount(() => {
-		const socket = getSocket();
+		socket = getSocket();
 
 		socket.on('game:state', (state) => gameStore.applyState(state));
 		socket.on('lobby:update', (data) => gameStore.setPlayers(data.players));
@@ -28,7 +37,6 @@
 		socket.on('game:reveal', (data) => gameStore.setRevealData(data));
 		socket.on('game:scores', (data) => gameStore.setLeaderboard(data.leaderboard));
 		socket.on('game:final', (data) => gameStore.setFinalData(data));
-		socket.on('game:speed-recall-hide', () => gameStore.setSpeedRecallHidden());
 		socket.on('game:next-countdown', (data) => gameStore.setPostGameCountdown(data.seconds));
 
 		socket.on('connect', () => {
@@ -71,6 +79,10 @@
 		<FinalStandings {sessionId} />
 	{/if}
 
+	{#if isGameActive}
+		<button class="kill-btn" onclick={handleKillGame} title="End Game">&#10006;</button>
+	{/if}
+
 	{#if !gameStore.connected}
 		<div class="connection-overlay">
 			<p>Reconnecting...</p>
@@ -79,6 +91,33 @@
 </div>
 
 <style>
+	.kill-btn {
+		position: fixed;
+		top: 1rem;
+		right: 1rem;
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		border: 2px solid var(--color-border);
+		background: var(--color-card);
+		color: var(--color-ink-muted);
+		font-size: 1.25rem;
+		cursor: pointer;
+		opacity: 0.5;
+		transition: all 150ms ease;
+		z-index: 50;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.kill-btn:hover {
+		opacity: 1;
+		background: var(--color-wrong);
+		color: white;
+		border-color: var(--color-wrong);
+	}
+
 	.connection-overlay {
 		position: fixed;
 		top: 0;

@@ -25,7 +25,6 @@ let leaderboard = $state<LeaderboardEntry[]>([]);
 let finalData = $state<FinalData | null>(null);
 let myFeedback = $state<ScoredAnswer | null>(null);
 let hasAnswered = $state(false);
-let speedRecallHidden = $state(false);
 let connected = $state(false);
 let errorMessage = $state<string | null>(null);
 let postGameCountdown = $state(0);
@@ -51,7 +50,6 @@ export const gameStore = {
 	get finalData() { return finalData; },
 	get myFeedback() { return myFeedback; },
 	get hasAnswered() { return hasAnswered; },
-	get speedRecallHidden() { return speedRecallHidden; },
 	get connected() { return connected; },
 	get errorMessage() { return errorMessage; },
 	get postGameCountdown() { return postGameCountdown; },
@@ -76,7 +74,6 @@ export const gameStore = {
 		postGameCountdown = state.postGameCountdown || 0;
 		hasAnswered = false;
 		myFeedback = null;
-		speedRecallHidden = false;
 		errorMessage = null;
 	},
 
@@ -84,14 +81,13 @@ export const gameStore = {
 	setPlayers(p: Player[]) { players = p; totalPlayers = p.filter(pl => pl.connected).length; },
 	setCountdown(c: number) { countdown = c; },
 	setTimer(t: number) { timer = t; },
-	setTvQuestion(q: QuestionForTV) { tvQuestion = q; phase = 'ANSWERING'; currentRound = q.round; totalRounds = q.totalRounds; hasAnswered = false; myFeedback = null; speedRecallHidden = false; },
-	setPhoneQuestion(q: QuestionForPhone) { phoneQuestion = q; hasAnswered = false; myFeedback = null; speedRecallHidden = false; },
+	setTvQuestion(q: QuestionForTV) { tvQuestion = q; phase = 'ANSWERING'; currentRound = q.round; totalRounds = q.totalRounds; hasAnswered = false; myFeedback = null; },
+	setPhoneQuestion(q: QuestionForPhone) { phoneQuestion = q; hasAnswered = false; myFeedback = null; },
 	setAnsweredCount(count: number, total: number) { answeredCount = count; totalPlayers = total; },
 	setRevealData(data: RevealData) { revealData = data; phase = 'REVEAL'; },
 	setLeaderboard(lb: LeaderboardEntry[]) { leaderboard = lb; phase = 'SCORES'; },
 	setFinalData(data: FinalData) { finalData = data; phase = 'FINAL'; },
 	setMyFeedback(fb: ScoredAnswer) { myFeedback = fb; hasAnswered = true; },
-	setSpeedRecallHidden() { speedRecallHidden = true; },
 	setConnected(c: boolean) { connected = c; },
 	setError(msg: string) { errorMessage = msg; },
 	clearError() { errorMessage = null; },
@@ -116,7 +112,6 @@ export const gameStore = {
 		finalData = null;
 		myFeedback = null;
 		hasAnswered = false;
-		speedRecallHidden = false;
 		errorMessage = null;
 		postGameCountdown = 0;
 	}
