@@ -40,6 +40,6 @@ ENV HOST=0.0.0.0
 ENV DATABASE_PATH=/app/data/scripture-showdown.db
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
-  CMD wget -qO- http://localhost:3000/ || exit 1
+  CMD wget -qO- http://0.0.0.0:3000/ || exit 1
 
 CMD ["npx", "tsx", "server.ts"]
