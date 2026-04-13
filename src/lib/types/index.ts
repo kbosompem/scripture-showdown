@@ -76,7 +76,8 @@ export interface TeamMember {
 // ── Player (in-game) ─────────────────────────────────────────
 
 export interface Player {
-	id: string; // socket ID
+	id: string;       // stable player identity (persists across reconnects)
+	socketId: string;  // current socket.io connection ID
 	name: string;
 	avatar: Avatar;
 	teamId?: number;
@@ -94,6 +95,7 @@ export interface FillTheGapQuestion {
 	verseId: number;
 	textWithBlanks: string;
 	reference: string;
+	fullText: string;
 	blanks: { position: number; word: string }[];
 	blankCount: number;
 }
@@ -102,6 +104,7 @@ export interface NameThatReferenceQuestion {
 	mode: 'name-that-reference';
 	verseId: number;
 	text: string;
+	reference: string;
 	correctReference: { book: string; chapter: number; verse: number };
 }
 
@@ -110,6 +113,10 @@ export interface QuoteItQuestion {
 	verseId: number;
 	reference: string;
 	correctText: string;
+	textWithBlanks: string;
+	blanks: { position: number; word: string }[];
+	blankCount: number;
+	wordChoices: string[][]; // per-blank array of word options
 }
 
 export interface SpeedRecallQuestion {
@@ -132,14 +139,12 @@ export interface QuestionForTV {
 	round: number;
 	totalRounds: number;
 	timeLimit: number;
-	// Fill the Gap
+	// Fill the Gap + Quote It
 	textWithBlanks?: string;
 	reference?: string;
 	blankCount?: number;
 	// Name That Reference
 	text?: string;
-	// Quote It
-	// reference already covered
 	// Speed Recall
 	// text and reference already covered
 }
@@ -152,7 +157,9 @@ export interface QuestionForPhone {
 	timeLimit: number;
 	blankCount?: number;
 	reference?: string;
-	text?: string; // Speed Recall only (shown briefly)
+	text?: string;
+	textWithBlanks?: string;
+	wordChoices?: string[][];
 }
 
 // ── Answers ──────────────────────────────────────────────────
@@ -160,7 +167,7 @@ export interface QuestionForPhone {
 export interface PlayerAnswer {
 	playerId: string;
 	roundNumber: number;
-	answer: string | string[]; // string[] for fill-the-gap, string for others
+	answer: string | string[];
 	timeMs: number;
 }
 
@@ -210,11 +217,13 @@ export interface GameState {
 	revealData: RevealData | null;
 	leaderboard: LeaderboardEntry[];
 	finalData: FinalData | null;
+	postGameCountdown: number;
 }
 
 export interface RevealData {
 	correctAnswer: string;
 	correctReference?: string;
+	fullVerseText?: string;
 	results: ScoredAnswer[];
 }
 
@@ -229,7 +238,9 @@ export interface FinalData {
 
 // Client → Server
 export interface ClientEvents {
+	'session:join': (data: { sessionId: string; role: 'tv' | 'player' }) => void;
 	'player:join': (data: { name: string; avatar: Avatar; teamCode?: string }) => void;
+	'player:reconnect': (data: { playerId: string }) => void;
 	'player:leave': () => void;
 	'tv:connect': () => void;
 	'game:start': (data: { packSlug: string; mode: GameMode; numRounds: number }) => void;
@@ -248,7 +259,9 @@ export interface ServerEvents {
 	'game:reveal': (data: RevealData) => void;
 	'game:scores': (data: { leaderboard: LeaderboardEntry[] }) => void;
 	'game:final': (data: FinalData) => void;
+	'game:next-countdown': (data: { seconds: number }) => void;
 	'player:feedback': (data: ScoredAnswer) => void;
+	'player:joined': (data: { playerId: string }) => void;
 	'player:error': (data: { message: string }) => void;
 	'game:speed-recall-hide': () => void;
 }
@@ -263,12 +276,13 @@ export const SCORING = {
 	QUOTE_IT_MAX: 1000,
 	SPEED_RECALL_MAX: 1500,
 	SPEED_BONUS_MAX: 500,
-	STREAK_MULTIPLIERS: [1.0, 1.0, 1.1, 1.2, 1.3, 1.5] as const, // index = streak count, 5+ = 1.5
+	STREAK_MULTIPLIERS: [1.0, 1.0, 1.1, 1.2, 1.3, 1.5] as const,
 	TIME_LIMITS: {
 		'fill-the-gap': 30,
 		'name-that-reference': 29,
 		'quote-it': 45,
-		'speed-recall': 50 // 5s display + 45s typing
+		'speed-recall': 50
 	} as const,
-	SPEED_RECALL_DISPLAY_TIME: 5
+	SPEED_RECALL_DISPLAY_TIME: 5,
+	POST_GAME_COUNTDOWN: 45
 } as const;

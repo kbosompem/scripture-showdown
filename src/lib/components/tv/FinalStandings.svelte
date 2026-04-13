@@ -1,10 +1,29 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { gameStore } from '$lib/stores/game.svelte.js';
 	import { AVATAR_EMOJI } from '$lib/types/index.js';
+
+	let { sessionId = '' }: { sessionId?: string } = $props();
 
 	let data = $derived(gameStore.finalData);
 	let champion = $derived(data?.champion);
 	let rest = $derived(data?.leaderboard.slice(1) || []);
+
+	let qrDataUrl = $state('');
+
+	onMount(async () => {
+		const host = window.location.hostname;
+		const port = window.location.port;
+		const gameUrl = `http://${host}${port ? ':' + port : ''}/play/${sessionId}`;
+
+		const QRCode = await import('qrcode');
+		qrDataUrl = await QRCode.toDataURL(gameUrl, {
+			width: 160,
+			margin: 2,
+			color: { dark: '#3E2723', light: '#F5ECD7' },
+			errorCorrectionLevel: 'H'
+		});
+	});
 </script>
 
 <div class="final-screen">
@@ -50,6 +69,19 @@
 			{/if}
 		</div>
 	{/if}
+
+	<!-- Post-game countdown + QR -->
+	<div class="postgame-bar">
+		{#if gameStore.postGameCountdown > 0}
+			<span class="postgame-timer">Next game in {gameStore.postGameCountdown}s</span>
+		{/if}
+		{#if qrDataUrl}
+			<div class="postgame-qr">
+				<img src={qrDataUrl} alt="Join QR" class="postgame-qr-img" />
+				<span class="postgame-code">{sessionId}</span>
+			</div>
+		{/if}
+	</div>
 </div>
 
 <style>
@@ -61,7 +93,7 @@
 		justify-content: center;
 		background: var(--color-page);
 		padding: 2rem;
-		gap: 1.5rem;
+		gap: 1rem;
 	}
 
 	h1 {
@@ -78,13 +110,8 @@
 		gap: 0.5rem;
 	}
 
-	.crown {
-		font-size: 4rem;
-	}
-
-	.champion-avatar {
-		font-size: 5rem;
-	}
+	.crown { font-size: 4rem; }
+	.champion-avatar { font-size: 5rem; }
 
 	.champion-name {
 		font-size: 3.5rem;
@@ -102,7 +129,7 @@
 	.rest-standings {
 		display: flex;
 		gap: 2rem;
-		margin-top: 1rem;
+		margin-top: 0.5rem;
 	}
 
 	.standing-row {
@@ -115,30 +142,15 @@
 		border: 2px solid var(--color-border);
 	}
 
-	.stand-rank {
-		font-size: 2rem;
-	}
-
-	.stand-avatar {
-		font-size: 1.75rem;
-	}
-
-	.stand-name {
-		font-size: 1.25rem;
-		font-weight: 700;
-		color: var(--color-ink);
-	}
-
-	.stand-score {
-		font-size: 1.25rem;
-		color: var(--color-ink-muted);
-		font-weight: 600;
-	}
+	.stand-rank { font-size: 2rem; }
+	.stand-avatar { font-size: 1.75rem; }
+	.stand-name { font-size: 1.25rem; font-weight: 700; color: var(--color-ink); }
+	.stand-score { font-size: 1.25rem; color: var(--color-ink-muted); font-weight: 600; }
 
 	.stats-row {
 		display: flex;
 		gap: 3rem;
-		margin-top: 2rem;
+		margin-top: 1rem;
 	}
 
 	.stat {
@@ -148,22 +160,43 @@
 		gap: 0.25rem;
 	}
 
-	.stat-label {
-		font-size: 1rem;
-		color: var(--color-ink-muted);
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
+	.stat-label { font-size: 1rem; color: var(--color-ink-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+	.stat-value { font-family: var(--font-verse); font-size: 1.5rem; color: var(--color-ink); font-weight: 700; }
+	.stat-sub { font-size: 0.875rem; color: var(--color-ink-muted); }
+
+	.postgame-bar {
+		position: fixed;
+		bottom: 1.5rem;
+		right: 2rem;
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
 	}
 
-	.stat-value {
-		font-family: var(--font-verse);
+	.postgame-timer {
 		font-size: 1.5rem;
-		color: var(--color-ink);
 		font-weight: 700;
+		color: var(--color-accent);
 	}
 
-	.stat-sub {
-		font-size: 0.875rem;
+	.postgame-qr {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.25rem;
+	}
+
+	.postgame-qr-img {
+		width: 120px;
+		height: 120px;
+		border-radius: 0.5rem;
+		border: 2px solid var(--color-border);
+	}
+
+	.postgame-code {
+		font-size: 1rem;
+		font-weight: 700;
 		color: var(--color-ink-muted);
+		letter-spacing: 0.15em;
 	}
 </style>

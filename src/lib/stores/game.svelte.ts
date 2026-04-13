@@ -28,6 +28,7 @@ let hasAnswered = $state(false);
 let speedRecallHidden = $state(false);
 let connected = $state(false);
 let errorMessage = $state<string | null>(null);
+let postGameCountdown = $state(0);
 
 export const gameStore = {
 	get phase() { return phase; },
@@ -53,8 +54,8 @@ export const gameStore = {
 	get speedRecallHidden() { return speedRecallHidden; },
 	get connected() { return connected; },
 	get errorMessage() { return errorMessage; },
+	get postGameCountdown() { return postGameCountdown; },
 
-	// Apply full state sync
 	applyState(state: GameState) {
 		phase = state.phase;
 		sessionId = state.sessionId;
@@ -72,13 +73,13 @@ export const gameStore = {
 		leaderboard = state.leaderboard;
 		finalData = state.finalData;
 		totalPlayers = state.players.filter(p => p.connected).length;
+		postGameCountdown = state.postGameCountdown || 0;
 		hasAnswered = false;
 		myFeedback = null;
 		speedRecallHidden = false;
 		errorMessage = null;
 	},
 
-	// Granular updates
 	setPhase(p: GamePhase) { phase = p; },
 	setPlayers(p: Player[]) { players = p; totalPlayers = p.filter(pl => pl.connected).length; },
 	setCountdown(c: number) { countdown = c; },
@@ -94,6 +95,7 @@ export const gameStore = {
 	setConnected(c: boolean) { connected = c; },
 	setError(msg: string) { errorMessage = msg; },
 	clearError() { errorMessage = null; },
+	setPostGameCountdown(s: number) { postGameCountdown = s; },
 
 	reset() {
 		phase = 'IDLE';
@@ -116,5 +118,6 @@ export const gameStore = {
 		hasAnswered = false;
 		speedRecallHidden = false;
 		errorMessage = null;
+		postGameCountdown = 0;
 	}
 };

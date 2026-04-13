@@ -30,7 +30,7 @@
 			<div class="step">
 				<span class="step-num">1</span>
 				<h3>Open TV View</h3>
-				<p>Navigate to the TV URL in your Samsung TV browser</p>
+				<p>Navigate to the TV URL — a new game session is created automatically</p>
 				{#if tvUrl}
 					<a href={tvUrl} class="step-link">{tvUrl}</a>
 				{/if}
@@ -70,7 +70,7 @@
 			<div class="mode-card">
 				<span class="mode-icon">&#128172;</span>
 				<h3>Quote It</h3>
-				<p>Type the verse from memory</p>
+				<p>Pick the missing words from multiple choices</p>
 			</div>
 			<div class="mode-card">
 				<span class="mode-icon">&#9889;</span>
@@ -90,10 +90,7 @@
 		margin: 0 auto;
 	}
 
-	.hero {
-		text-align: center;
-		margin-bottom: 3rem;
-	}
+	.hero { text-align: center; margin-bottom: 3rem; }
 
 	.hero h1 {
 		font-family: var(--font-verse);
@@ -104,15 +101,8 @@
 		margin: 0;
 	}
 
-	.tagline {
-		font-size: 1.25rem;
-		color: var(--color-ink-muted);
-		margin-top: 0.5rem;
-	}
-
-	.how-it-works {
-		margin-bottom: 3rem;
-	}
+	.tagline { font-size: 1.25rem; color: var(--color-ink-muted); margin-top: 0.5rem; }
+	.how-it-works { margin-bottom: 3rem; }
 
 	.how-it-works h2, .game-modes h2 {
 		font-family: var(--font-verse);
@@ -122,11 +112,7 @@
 		margin: 0 0 1.5rem;
 	}
 
-	.steps {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-		gap: 1.5rem;
-	}
+	.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
 
 	.step {
 		text-align: center;
@@ -150,46 +136,21 @@
 		margin-bottom: 0.75rem;
 	}
 
-	.step h3 {
-		font-size: 1.125rem;
-		color: var(--color-ink);
-		margin: 0 0 0.5rem;
-	}
-
-	.step p {
-		font-size: 0.875rem;
-		color: var(--color-ink-muted);
-		margin: 0;
-	}
-
-	.step-link {
-		font-size: 0.75rem;
-		color: var(--color-accent);
-		word-break: break-all;
-	}
+	.step h3 { font-size: 1.125rem; color: var(--color-ink); margin: 0 0 0.5rem; }
+	.step p { font-size: 0.875rem; color: var(--color-ink-muted); margin: 0; }
+	.step-link { font-size: 0.75rem; color: var(--color-accent); word-break: break-all; }
 
 	.quick-links {
 		display: flex;
 		gap: 1rem;
 		justify-content: center;
 		margin-bottom: 3rem;
+		flex-wrap: wrap;
 	}
 
-	.quick-links .btn {
-		min-width: 180px;
-		text-decoration: none;
-		text-align: center;
-	}
-
-	.game-modes {
-		margin-bottom: 2rem;
-	}
-
-	.mode-cards {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-		gap: 1rem;
-	}
+	.quick-links .btn { min-width: 160px; text-decoration: none; text-align: center; }
+	.game-modes { margin-bottom: 2rem; }
+	.mode-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
 
 	.mode-card {
 		padding: 1.25rem;
@@ -199,21 +160,7 @@
 		text-align: center;
 	}
 
-	.mode-icon {
-		font-size: 2rem;
-		display: block;
-		margin-bottom: 0.5rem;
-	}
-
-	.mode-card h3 {
-		font-size: 1rem;
-		color: var(--color-ink);
-		margin: 0 0 0.375rem;
-	}
-
-	.mode-card p {
-		font-size: 0.8rem;
-		color: var(--color-ink-muted);
-		margin: 0;
-	}
+	.mode-icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+	.mode-card h3 { font-size: 1rem; color: var(--color-ink); margin: 0 0 0.375rem; }
+	.mode-card p { font-size: 0.8rem; color: var(--color-ink-muted); margin: 0; }
 </style>

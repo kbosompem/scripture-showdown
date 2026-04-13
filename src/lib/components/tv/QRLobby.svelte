@@ -3,13 +3,15 @@
 	import { gameStore } from '$lib/stores/game.svelte.js';
 	import { AVATAR_EMOJI } from '$lib/types/index.js';
 
+	let { sessionId = '' }: { sessionId?: string } = $props();
+
 	let qrDataUrl = $state('');
 	let gameUrl = $state('');
 
 	onMount(async () => {
 		const host = window.location.hostname;
 		const port = window.location.port;
-		gameUrl = `http://${host}${port ? ':' + port : ''}/play`;
+		gameUrl = `http://${host}${port ? ':' + port : ''}/play/${sessionId}`;
 
 		const QRCode = await import('qrcode');
 		qrDataUrl = await QRCode.toDataURL(gameUrl, {
@@ -36,6 +38,7 @@
 				<div class="qr-placeholder">Loading...</div>
 			{/if}
 			<p class="join-url">{gameUrl}</p>
+			<p class="session-code">Code: <strong>{sessionId}</strong></p>
 		</div>
 
 		<div class="players-section">
@@ -121,6 +124,17 @@
 		font-size: 1.25rem;
 		color: var(--color-ink-muted);
 		font-family: monospace;
+	}
+
+	.session-code {
+		font-size: 1.5rem;
+		color: var(--color-ink);
+	}
+
+	.session-code strong {
+		font-size: 2rem;
+		letter-spacing: 0.2em;
+		color: var(--color-accent);
 	}
 
 	.players-section {

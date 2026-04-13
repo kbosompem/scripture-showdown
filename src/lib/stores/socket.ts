@@ -11,7 +11,7 @@ export function getSocket(): Socket {
 			autoConnect: true,
 			reconnection: true,
 			reconnectionDelay: 1000,
-			reconnectionAttempts: 10
+			reconnectionAttempts: Infinity
 		});
 
 		socket.on('connect', () => {
@@ -35,4 +35,32 @@ export function disconnectSocket(): void {
 		socket.disconnect();
 		socket = null;
 	}
+}
+
+// ── localStorage helpers for player persistence ─────────────
+
+export function savePlayerInfo(sessionId: string, playerId: string, name: string, avatar: string): void {
+	if (!browser) return;
+	try {
+		localStorage.setItem('ss_sessionId', sessionId);
+		localStorage.setItem('ss_playerId', playerId);
+		localStorage.setItem('ss_playerName', name);
+		localStorage.setItem('ss_playerAvatar', avatar);
+	} catch { /* quota exceeded or private mode */ }
+}
+
+export function getSavedPlayerInfo(): { sessionId: string | null; playerId: string | null; name: string | null; avatar: string | null } {
+	if (!browser) return { sessionId: null, playerId: null, name: null, avatar: null };
+	return {
+		sessionId: localStorage.getItem('ss_sessionId'),
+		playerId: localStorage.getItem('ss_playerId'),
+		name: localStorage.getItem('ss_playerName'),
+		avatar: localStorage.getItem('ss_playerAvatar')
+	};
+}
+
+export function clearSavedPlayer(): void {
+	if (!browser) return;
+	localStorage.removeItem('ss_sessionId');
+	localStorage.removeItem('ss_playerId');
 }

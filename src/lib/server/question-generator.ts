@@ -26,32 +26,36 @@ export function getVersesForPack(packSlug: string): Verse[] {
 	return rows;
 }
 
-export function generateQuestion(verse: Verse, mode: GameMode): Question {
+export function generateQuestion(verse: Verse, mode: GameMode, allVerses?: Verse[]): Question {
 	switch (mode) {
 		case 'fill-the-gap':
 			return generateFillTheGap(verse);
 		case 'name-that-reference':
 			return generateNameThatReference(verse);
 		case 'quote-it':
-			return generateQuoteIt(verse);
+			return generateQuoteIt(verse, allVerses || []);
 		case 'speed-recall':
 			return generateSpeedRecall(verse);
 	}
 }
 
-function generateFillTheGap(verse: Verse): FillTheGapQuestion {
-	const words = verse.text.split(/\s+/);
-	const significantIndices: number[] = [];
-
+/** Get significant word indices from a word array */
+function getSignificantIndices(words: string[]): number[] {
+	const indices: number[] = [];
 	for (let i = 0; i < words.length; i++) {
 		const clean = words[i].replace(/[^\w]/g, '').toLowerCase();
 		if (!STOP_WORDS.has(clean) && clean.length > 2) {
-			significantIndices.push(i);
+			indices.push(i);
 		}
 	}
+	return indices;
+}
 
-	// Pick 2-4 blanks
-	const blankCount = Math.min(Math.max(2, Math.floor(significantIndices.length / 3)), 4);
+/** Create blanks from a verse text */
+function createBlanks(text: string, count: number): { textWithBlanks: string; blanks: { position: number; word: string }[] } {
+	const words = text.split(/\s+/);
+	const significantIndices = getSignificantIndices(words);
+	const blankCount = Math.min(count, significantIndices.length);
 	const shuffled = significantIndices.sort(() => Math.random() - 0.5);
 	const selectedIndices = shuffled.slice(0, blankCount).sort((a, b) => a - b);
 
@@ -64,11 +68,59 @@ function generateFillTheGap(verse: Verse): FillTheGapQuestion {
 		displayWords[idx] = `___${i + 1}___`;
 	}
 
+	return { textWithBlanks: displayWords.join(' '), blanks };
+}
+
+/** Generate word choices (correct + distractors) for each blank */
+function generateWordChoices(blanks: { position: number; word: string }[], verse: Verse, allVerses: Verse[]): string[][] {
+	// Collect distractor pool from all verses
+	const allWords = new Set<string>();
+	for (const v of allVerses) {
+		for (const w of v.text.split(/\s+/)) {
+			const clean = w.replace(/[^\w]/g, '');
+			if (clean.length > 2 && !STOP_WORDS.has(clean.toLowerCase())) {
+				allWords.add(clean);
+			}
+		}
+	}
+	// Also add words from the current verse
+	for (const w of verse.text.split(/\s+/)) {
+		const clean = w.replace(/[^\w]/g, '');
+		if (clean.length > 2) allWords.add(clean);
+	}
+
+	const wordPool = Array.from(allWords);
+
+	return blanks.map(blank => {
+		const correct = blank.word.replace(/[^\w]/g, '');
+		// Pick 3 distractors that aren't the correct answer
+		const distractors = new Set<string>();
+		let attempts = 0;
+		while (distractors.size < 3 && attempts < 100) {
+			const candidate = wordPool[Math.floor(Math.random() * wordPool.length)];
+			if (candidate && candidate.toLowerCase() !== correct.toLowerCase() && !distractors.has(candidate)) {
+				distractors.add(candidate);
+			}
+			attempts++;
+		}
+		// Shuffle correct + distractors
+		const choices = [correct, ...distractors].sort(() => Math.random() - 0.5);
+		return choices;
+	});
+}
+
+function generateFillTheGap(verse: Verse): FillTheGapQuestion {
+	const words = verse.text.split(/\s+/);
+	const significantIndices = getSignificantIndices(words);
+	const blankCount = Math.min(Math.max(2, Math.floor(significantIndices.length / 3)), 4);
+	const { textWithBlanks, blanks } = createBlanks(verse.text, blankCount);
+
 	return {
 		mode: 'fill-the-gap',
 		verseId: verse.id,
-		textWithBlanks: displayWords.join(' '),
+		textWithBlanks,
 		reference: verse.reference,
+		fullText: verse.text,
 		blanks,
 		blankCount: blanks.length
 	};
@@ -79,6 +131,7 @@ function generateNameThatReference(verse: Verse): NameThatReferenceQuestion {
 		mode: 'name-that-reference',
 		verseId: verse.id,
 		text: verse.text,
+		reference: verse.reference,
 		correctReference: {
 			book: verse.book,
 			chapter: verse.chapter,
@@ -87,12 +140,20 @@ function generateNameThatReference(verse: Verse): NameThatReferenceQuestion {
 	};
 }
 
-function generateQuoteIt(verse: Verse): QuoteItQuestion {
+function generateQuoteIt(verse: Verse, allVerses: Verse[]): QuoteItQuestion {
+	// Quote-it: show reference, fill in 3 missing words with button choices
+	const { textWithBlanks, blanks } = createBlanks(verse.text, 3);
+	const wordChoices = generateWordChoices(blanks, verse, allVerses);
+
 	return {
 		mode: 'quote-it',
 		verseId: verse.id,
 		reference: verse.reference,
-		correctText: verse.text
+		correctText: verse.text,
+		textWithBlanks,
+		blanks,
+		blankCount: blanks.length,
+		wordChoices
 	};
 }
 

@@ -1,8 +1,7 @@
-import { v4 as uuidv4 } from 'uuid';
 import type {
 	GamePhase, GameMode, GameState, Player, Avatar, Question,
 	QuestionForTV, QuestionForPhone, PlayerAnswer, ScoredAnswer,
-	LeaderboardEntry, RevealData, FinalData, Verse,
+	LeaderboardEntry, RevealData, FinalData,
 	FillTheGapQuestion, NameThatReferenceQuestion, QuoteItQuestion,
 	SpeedRecallQuestion
 } from '../types/index.js';
@@ -11,10 +10,18 @@ import { generateQuestion, getVersesForPack, pickRandomVerses } from './question
 import { fuzzyMatch } from './fuzzy-match.js';
 import { getDb } from './db.js';
 
+/** Generate a short random player ID */
+function generatePlayerId(): string {
+	const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
+	let id = '';
+	for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random() * chars.length)];
+	return id;
+}
+
 export class GameEngine {
 	phase: GamePhase = 'IDLE';
-	sessionId: string | null = null;
-	players: Map<string, Player> = new Map();
+	sessionId: string;
+	players: Map<string, Player> = new Map(); // keyed by stable playerId
 	mode: GameMode | null = null;
 	packSlug: string | null = null;
 	packName: string | null = null;
@@ -22,20 +29,25 @@ export class GameEngine {
 	totalRounds = 10;
 	questions: Question[] = [];
 	currentQuestion: Question | null = null;
-	answers: Map<string, ScoredAnswer> = new Map(); // keyed by playerId for current round
+	answers: Map<string, ScoredAnswer> = new Map();
 	timers: NodeJS.Timeout[] = [];
 	timeLimit = 30;
 	timerRemaining = 0;
-	roundAnswers: Map<string, Map<number, ScoredAnswer>> = new Map(); // playerId -> round -> answer
+	roundAnswers: Map<string, Map<number, ScoredAnswer>> = new Map();
+	postGameRemaining = 0;
 
 	// Callbacks for Socket.io emission
 	private onBroadcast: ((event: string, data: unknown) => void) | null = null;
-	private onEmitTo: ((playerId: string, event: string, data: unknown) => void) | null = null;
+	private onEmitTo: ((socketId: string, event: string, data: unknown) => void) | null = null;
 	private onTimerTick: ((remaining: number) => void) | null = null;
+
+	constructor(sessionId: string) {
+		this.sessionId = sessionId;
+	}
 
 	setCallbacks(
 		broadcast: (event: string, data: unknown) => void,
-		emitTo: (playerId: string, event: string, data: unknown) => void,
+		emitTo: (socketId: string, event: string, data: unknown) => void,
 		timerTick: (remaining: number) => void
 	) {
 		this.onBroadcast = broadcast;
@@ -45,9 +57,11 @@ export class GameEngine {
 
 	// ── Player management ────────────────────────────────────
 
-	addPlayer(id: string, name: string, avatar: Avatar, teamId?: number, teamName?: string): Player {
+	addPlayer(socketId: string, name: string, avatar: Avatar, teamId?: number, teamName?: string): Player {
+		const playerId = generatePlayerId();
 		const player: Player = {
-			id,
+			id: playerId,
+			socketId,
 			name,
 			avatar,
 			teamId,
@@ -57,7 +71,7 @@ export class GameEngine {
 			rank: this.players.size + 1,
 			connected: true
 		};
-		this.players.set(id, player);
+		this.players.set(playerId, player);
 
 		if (this.phase === 'IDLE') {
 			this.phase = 'LOBBY';
@@ -66,25 +80,36 @@ export class GameEngine {
 		return player;
 	}
 
-	removePlayer(id: string): void {
-		const player = this.players.get(id);
-		if (player) {
-			player.connected = false;
+	removePlayerBySocket(socketId: string): void {
+		for (const player of this.players.values()) {
+			if (player.socketId === socketId) {
+				player.connected = false;
+				break;
+			}
 		}
 	}
 
-	reconnectPlayer(oldId: string, newId: string): Player | null {
-		const player = this.players.get(oldId);
+	reconnectPlayer(playerId: string, newSocketId: string): Player | null {
+		const player = this.players.get(playerId);
 		if (!player) return null;
-		this.players.delete(oldId);
-		player.id = newId;
+		player.socketId = newSocketId;
 		player.connected = true;
-		this.players.set(newId, player);
 		return player;
+	}
+
+	getPlayerBySocketId(socketId: string): Player | undefined {
+		for (const player of this.players.values()) {
+			if (player.socketId === socketId) return player;
+		}
+		return undefined;
 	}
 
 	getActivePlayers(): Player[] {
 		return Array.from(this.players.values()).filter((p) => p.connected);
+	}
+
+	hasConnectedSockets(): boolean {
+		return this.getActivePlayers().length > 0;
 	}
 
 	// ── Game lifecycle ───────────────────────────────────────
@@ -93,11 +118,9 @@ export class GameEngine {
 		if (this.phase !== 'LOBBY') return false;
 		if (this.getActivePlayers().length === 0) return false;
 
-		// Load verses
 		const verses = getVersesForPack(packSlug);
 		if (verses.length === 0) return false;
 
-		// Get pack name
 		const db = getDb();
 		const pack = db.prepare('SELECT name FROM verse_packs WHERE slug = ?').get(packSlug) as { name: string } | undefined;
 
@@ -107,14 +130,12 @@ export class GameEngine {
 		this.totalRounds = Math.min(numRounds, verses.length);
 		this.currentRound = 0;
 		this.timeLimit = SCORING.TIME_LIMITS[mode];
-		this.sessionId = uuidv4();
 		this.roundAnswers = new Map();
+		this.postGameRemaining = 0;
 
-		// Pre-generate all questions
 		const selected = pickRandomVerses(verses, this.totalRounds);
-		this.questions = selected.map((v) => generateQuestion(v, mode));
+		this.questions = selected.map((v) => generateQuestion(v, mode, verses));
 
-		// Reset player scores
 		for (const player of this.players.values()) {
 			player.score = 0;
 			player.streak = 0;
@@ -155,17 +176,14 @@ export class GameEngine {
 		this.phase = 'QUESTION';
 		this.timerRemaining = this.timeLimit;
 
-		// Send TV question (separate event so phones don't get it)
 		const tvQuestion = this.buildTVQuestion();
 		this.broadcast('game:tv-question', tvQuestion);
 
-		// Send phone question to each player (personal event)
 		const phoneQuestion = this.buildPhoneQuestion();
 		for (const player of this.getActivePlayers()) {
-			this.emitTo(player.id, 'game:phone-question', phoneQuestion);
+			this.emitTo(player.socketId, 'game:phone-question', phoneQuestion);
 		}
 
-		// For speed recall: hide verse after display time
 		if (this.currentQuestion.mode === 'speed-recall') {
 			const hideTimer = setTimeout(() => {
 				this.broadcast('game:speed-recall-hide', {});
@@ -191,38 +209,35 @@ export class GameEngine {
 		this.timers.push(interval);
 	}
 
-	submitAnswer(playerId: string, answer: PlayerAnswer): ScoredAnswer | null {
+	submitAnswer(socketId: string, answer: PlayerAnswer): ScoredAnswer | null {
 		if (this.phase !== 'ANSWERING') return null;
-		if (this.answers.has(playerId)) return null; // already answered
 		if (!this.currentQuestion) return null;
 
-		const player = this.players.get(playerId);
+		const player = this.getPlayerBySocketId(socketId);
 		if (!player) return null;
+
+		const playerId = player.id;
+		if (this.answers.has(playerId)) return null; // already answered
 
 		const scored = this.scoreAnswer(player, answer);
 		this.answers.set(playerId, scored);
 
-		// Store in round history
 		if (!this.roundAnswers.has(playerId)) {
 			this.roundAnswers.set(playerId, new Map());
 		}
 		this.roundAnswers.get(playerId)!.set(this.currentRound, scored);
 
-		// Update player
 		player.score = scored.newScore;
 		player.streak = scored.newStreak;
 
-		// Broadcast progress (no spoilers)
 		this.broadcast('game:player-answered', {
 			playerId,
 			answeredCount: this.answers.size,
 			totalPlayers: this.getActivePlayers().length
 		});
 
-		// Send personal feedback
-		this.emitTo(playerId, 'player:feedback', scored);
+		this.emitTo(player.socketId, 'player:feedback', scored);
 
-		// If all active players answered, end round early
 		if (this.answers.size >= this.getActivePlayers().length) {
 			this.clearTimers();
 			this.endRound();
@@ -235,18 +250,15 @@ export class GameEngine {
 		this.clearTimers();
 		this.phase = 'REVEAL';
 
-		// Build reveal data
 		const revealData = this.buildRevealData();
 		this.broadcast('game:reveal', revealData);
 
-		// After 5 seconds, show scores
 		const scoreTimer = setTimeout(() => {
 			this.phase = 'SCORES';
 			this.updateRanks();
 			const leaderboard = this.getLeaderboard();
 			this.broadcast('game:scores', { leaderboard });
 
-			// After 4 seconds, next round or final
 			const nextTimer = setTimeout(() => {
 				this.nextRound();
 			}, 4000);
@@ -270,10 +282,23 @@ export class GameEngine {
 			toughestVerse: this.getToughestVerse()
 		};
 
-		// Persist results to SQLite
 		this.persistSession(leaderboard);
-
 		this.broadcast('game:final', finalData);
+
+		// Start post-game countdown (45 seconds)
+		this.postGameRemaining = SCORING.POST_GAME_COUNTDOWN;
+		this.broadcast('game:next-countdown', { seconds: this.postGameRemaining });
+
+		const postGameTimer = setInterval(() => {
+			this.postGameRemaining--;
+			this.broadcast('game:next-countdown', { seconds: this.postGameRemaining });
+
+			if (this.postGameRemaining <= 0) {
+				clearInterval(postGameTimer);
+				this.playAgain();
+			}
+		}, 1000);
+		this.timers.push(postGameTimer);
 	}
 
 	private persistSession(leaderboard: LeaderboardEntry[]): void {
@@ -281,17 +306,15 @@ export class GameEngine {
 
 		try {
 			const db = getDb();
-
-			// Get pack ID
 			const pack = db.prepare('SELECT id FROM verse_packs WHERE slug = ?').get(this.packSlug) as { id: number } | undefined;
 
-			// Save game session
 			db.prepare(
 				`INSERT INTO game_sessions (id, pack_id, mode, status, num_rounds, finished_at)
 				 VALUES (?, ?, ?, 'finished', ?, datetime('now'))`
-			).run(this.sessionId, pack?.id ?? null, this.mode, this.totalRounds);
+			).run(this.sessionId + '-' + Date.now(), pack?.id ?? null, this.mode, this.totalRounds);
 
-			// Save each player's results
+			const sessionDbId = this.sessionId + '-' + Date.now();
+
 			const insertPlayer = db.prepare(
 				`INSERT INTO session_players (session_id, display_name, total_score, final_rank)
 				 VALUES (?, ?, ?, ?)`
@@ -304,24 +327,23 @@ export class GameEngine {
 
 			const saveAll = db.transaction(() => {
 				for (const entry of leaderboard) {
-					const result = insertPlayer.run(this.sessionId, entry.name, entry.score, entry.rank);
+					const result = insertPlayer.run(sessionDbId, entry.name, entry.score, entry.rank);
 					const sessionPlayerId = result.lastInsertRowid;
 
-					// Save round-by-round answers for this player
 					const playerRounds = this.roundAnswers.get(entry.playerId);
 					if (playerRounds) {
 						for (const [round, scored] of playerRounds) {
 							const question = this.questions[round - 1];
 							const verseId = question ? ('verseId' in question ? question.verseId : null) : null;
 							insertAnswer.run(
-								this.sessionId,
+								sessionDbId,
 								sessionPlayerId,
 								round,
 								verseId,
 								scored.answerText,
 								scored.isCorrect ? 1 : 0,
 								scored.accuracyPct,
-								0, // timeMs not stored in ScoredAnswer currently
+								0,
 								scored.basePoints,
 								scored.speedBonus,
 								Math.floor((scored.streakMultiplier - 1) * 100),
@@ -348,13 +370,14 @@ export class GameEngine {
 		this.answers.clear();
 		this.roundAnswers.clear();
 		this.mode = null;
-		this.sessionId = null;
+		this.postGameRemaining = 0;
 
 		for (const player of this.players.values()) {
 			player.score = 0;
 			player.streak = 0;
 		}
 
+		this.broadcast('game:state', this.getFullState());
 		this.broadcast('lobby:update', {
 			players: Array.from(this.players.values()),
 			canStart: this.getActivePlayers().length > 0
@@ -417,15 +440,19 @@ export class GameEngine {
 				break;
 			}
 			case 'quote-it': {
+				// Quote-it now uses fill-the-gap style with 3 blanks
 				const qi = q as QuoteItQuestion;
-				answerText = String(answer.answer);
-				accuracyPct = fuzzyMatch(qi.correctText, answerText);
-				if (accuracyPct >= 0.9) {
-					basePoints = SCORING.QUOTE_IT_MAX;
-					isCorrect = true;
-				} else if (accuracyPct >= 0.5) {
-					basePoints = Math.floor(SCORING.QUOTE_IT_MAX * accuracyPct);
+				const answers = Array.isArray(answer.answer) ? answer.answer : [answer.answer];
+				answerText = answers.join(', ');
+				let correct = 0;
+				for (let i = 0; i < qi.blanks.length; i++) {
+					const expected = qi.blanks[i].word.toLowerCase().replace(/[^\w]/g, '');
+					const actual = (answers[i] || '').toLowerCase().replace(/[^\w]/g, '');
+					if (expected === actual) correct++;
 				}
+				accuracyPct = correct / qi.blanks.length;
+				basePoints = Math.floor(SCORING.QUOTE_IT_MAX * accuracyPct);
+				isCorrect = accuracyPct >= 1.0;
 				break;
 			}
 			case 'speed-recall': {
@@ -442,13 +469,11 @@ export class GameEngine {
 			}
 		}
 
-		// Speed bonus
 		const speedBonus =
 			basePoints > 0
 				? Math.max(0, Math.floor(((this.timeLimit * 1000 - answer.timeMs) / (this.timeLimit * 1000)) * SCORING.SPEED_BONUS_MAX))
 				: 0;
 
-		// Streak
 		const newStreak = isCorrect ? player.streak + 1 : 0;
 		const streakIdx = Math.min(newStreak, SCORING.STREAK_MULTIPLIERS.length - 1);
 		const streakMultiplier = SCORING.STREAK_MULTIPLIERS[streakIdx];
@@ -488,8 +513,10 @@ export class GameEngine {
 				return { ...base, textWithBlanks: (q as FillTheGapQuestion).textWithBlanks, reference: (q as FillTheGapQuestion).reference, blankCount: (q as FillTheGapQuestion).blankCount };
 			case 'name-that-reference':
 				return { ...base, text: (q as NameThatReferenceQuestion).text };
-			case 'quote-it':
-				return { ...base, reference: (q as QuoteItQuestion).reference };
+			case 'quote-it': {
+				const qi = q as QuoteItQuestion;
+				return { ...base, reference: qi.reference, textWithBlanks: qi.textWithBlanks, blankCount: qi.blankCount };
+			}
 			case 'speed-recall':
 				return { ...base, text: (q as SpeedRecallQuestion).text, reference: (q as SpeedRecallQuestion).reference };
 		}
@@ -509,8 +536,10 @@ export class GameEngine {
 				return { ...base, blankCount: (q as FillTheGapQuestion).blankCount };
 			case 'name-that-reference':
 				return { ...base };
-			case 'quote-it':
-				return { ...base, reference: (q as QuoteItQuestion).reference };
+			case 'quote-it': {
+				const qi = q as QuoteItQuestion;
+				return { ...base, reference: qi.reference, textWithBlanks: qi.textWithBlanks, blankCount: qi.blankCount, wordChoices: qi.wordChoices };
+			}
 			case 'speed-recall':
 				return { ...base, text: (q as SpeedRecallQuestion).text, reference: (q as SpeedRecallQuestion).reference };
 		}
@@ -520,29 +549,35 @@ export class GameEngine {
 		const q = this.currentQuestion!;
 		let correctAnswer = '';
 		let correctReference: string | undefined;
+		let fullVerseText: string | undefined;
 
 		switch (q.mode) {
 			case 'fill-the-gap': {
 				const ftg = q as FillTheGapQuestion;
 				correctAnswer = ftg.blanks.map((b) => b.word).join(', ');
 				correctReference = ftg.reference;
+				fullVerseText = ftg.fullText;
 				break;
 			}
 			case 'name-that-reference': {
 				const ntr = q as NameThatReferenceQuestion;
 				correctAnswer = `${ntr.correctReference.book} ${ntr.correctReference.chapter}:${ntr.correctReference.verse}`;
+				correctReference = correctAnswer;
+				fullVerseText = ntr.text;
 				break;
 			}
 			case 'quote-it': {
 				const qi = q as QuoteItQuestion;
-				correctAnswer = qi.correctText;
+				correctAnswer = qi.blanks.map((b) => b.word).join(', ');
 				correctReference = qi.reference;
+				fullVerseText = qi.correctText;
 				break;
 			}
 			case 'speed-recall': {
 				const sr = q as SpeedRecallQuestion;
 				correctAnswer = sr.correctText;
 				correctReference = sr.reference;
+				fullVerseText = sr.correctText;
 				break;
 			}
 		}
@@ -550,6 +585,7 @@ export class GameEngine {
 		return {
 			correctAnswer,
 			correctReference,
+			fullVerseText,
 			results: Array.from(this.answers.values()).sort((a, b) => b.totalPoints - a.totalPoints)
 		};
 	}
@@ -597,7 +633,8 @@ export class GameEngine {
 			answeredCount: this.answers.size,
 			revealData: this.phase === 'REVEAL' ? this.buildRevealData() : null,
 			leaderboard: this.getLeaderboard(),
-			finalData: null
+			finalData: null,
+			postGameCountdown: this.postGameRemaining
 		};
 	}
 
@@ -666,8 +703,8 @@ export class GameEngine {
 		this.onBroadcast?.(event, data);
 	}
 
-	private emitTo(playerId: string, event: string, data: unknown): void {
-		this.onEmitTo?.(playerId, event, data);
+	private emitTo(socketId: string, event: string, data: unknown): void {
+		this.onEmitTo?.(socketId, event, data);
 	}
 
 	private clearTimers(): void {
@@ -681,7 +718,6 @@ export class GameEngine {
 	reset(): void {
 		this.clearTimers();
 		this.phase = 'IDLE';
-		this.sessionId = null;
 		this.players.clear();
 		this.answers.clear();
 		this.roundAnswers.clear();
@@ -689,5 +725,6 @@ export class GameEngine {
 		this.currentQuestion = null;
 		this.currentRound = 0;
 		this.mode = null;
+		this.postGameRemaining = 0;
 	}
 }

@@ -1,14 +1,31 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { PLAYER_AVATARS, AVATAR_EMOJI, type Avatar } from '$lib/types/index.js';
+	import { browser } from '$app/environment';
 
 	let { onJoin }: { onJoin: (name: string, avatar: Avatar) => void } = $props();
 
 	let name = $state('');
 	let selectedAvatar = $state<Avatar>('lion');
 
+	onMount(() => {
+		if (browser) {
+			const savedName = localStorage.getItem('ss_playerName');
+			const savedAvatar = localStorage.getItem('ss_playerAvatar') as Avatar | null;
+			if (savedName) name = savedName;
+			if (savedAvatar && PLAYER_AVATARS.includes(savedAvatar)) selectedAvatar = savedAvatar;
+		}
+	});
+
 	function handleSubmit(e: Event) {
 		e.preventDefault();
 		if (name.trim()) {
+			if (browser) {
+				try {
+					localStorage.setItem('ss_playerName', name.trim());
+					localStorage.setItem('ss_playerAvatar', selectedAvatar);
+				} catch { /* ignore */ }
+			}
 			onJoin(name.trim(), selectedAvatar);
 		}
 	}
@@ -21,7 +38,7 @@
 	</header>
 
 	<form onsubmit={handleSubmit} class="join-form">
-		<label class="field-label">Your name</label>
+		<span class="field-label">Your name</span>
 		<input
 			type="text"
 			class="input"
@@ -31,7 +48,7 @@
 			autocomplete="off"
 		/>
 
-		<label class="field-label">Pick an icon</label>
+		<span class="field-label">Pick an icon</span>
 		<div class="avatar-grid">
 			{#each PLAYER_AVATARS.slice(0, 12) as avatar (avatar)}
 				<button

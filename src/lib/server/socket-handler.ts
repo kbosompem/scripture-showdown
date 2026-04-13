@@ -2,49 +2,84 @@ import type { Server, Socket } from 'socket.io';
 import type { Avatar, GameMode } from '../types/index.js';
 import { GameEngine } from './game-engine.js';
 
-const engine = new GameEngine();
+// ── Session management ──────────────────────────────────────
 
-// ── Rate limiting per IP ────────────────────────────────────
-interface RateBucket {
-	count: number;
-	resetAt: number;
+const sessions = new Map<string, GameEngine>();
+const socketToSession = new Map<string, string>(); // socketId → sessionId
+
+function generateSessionId(): string {
+	const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+	let id = '';
+	for (let i = 0; i < 6; i++) id += chars[Math.floor(Math.random() * chars.length)];
+	return id;
 }
 
+function getOrCreateSession(sessionId: string): GameEngine {
+	let engine = sessions.get(sessionId);
+	if (!engine) {
+		engine = new GameEngine(sessionId);
+		sessions.set(sessionId, engine);
+		console.log(`[session] created: ${sessionId}`);
+	}
+	return engine;
+}
+
+function getSessionForSocket(socketId: string): { sessionId: string; engine: GameEngine } | null {
+	const sessionId = socketToSession.get(socketId);
+	if (!sessionId) return null;
+	const engine = sessions.get(sessionId);
+	if (!engine) return null;
+	return { sessionId, engine };
+}
+
+// Clean up idle sessions every 5 minutes
+setInterval(() => {
+	for (const [id, engine] of sessions) {
+		if (!engine.hasConnectedSockets() && engine.phase !== 'ANSWERING' && engine.phase !== 'QUESTION') {
+			// Keep sessions alive for 10 minutes after last disconnect
+			// Use a simple approach: just delete truly empty sessions
+			if (engine.players.size === 0) {
+				engine.reset();
+				sessions.delete(id);
+				console.log(`[session] cleaned up empty: ${id}`);
+			}
+		}
+	}
+}, 300_000);
+
+// ── Rate limiting per IP ────────────────────────────────────
+
+interface RateBucket { count: number; resetAt: number; }
 const rateLimits = new Map<string, Map<string, RateBucket>>();
 
 const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
-	'connection':     { max: 10, windowMs: 60_000 },   // 10 connections/min per IP
-	'player:join':    { max: 5,  windowMs: 60_000 },    // 5 joins/min per IP
-	'answer:submit':  { max: 30, windowMs: 60_000 },    // 30 answers/min per IP
-	'game:start':     { max: 5,  windowMs: 60_000 },    // 5 starts/min per IP
-	'game:play-again':{ max: 10, windowMs: 60_000 },    // 10 replays/min per IP
+	'connection':      { max: 20, windowMs: 60_000 },
+	'player:join':     { max: 5,  windowMs: 60_000 },
+	'answer:submit':   { max: 30, windowMs: 60_000 },
+	'game:start':      { max: 5,  windowMs: 60_000 },
+	'game:play-again': { max: 10, windowMs: 60_000 },
 };
 
 function getClientIp(socket: Socket): string {
 	return socket.handshake.headers['x-forwarded-for']?.toString().split(',')[0]?.trim()
-		|| socket.handshake.address
-		|| 'unknown';
+		|| socket.handshake.address || 'unknown';
 }
 
 function isRateLimited(ip: string, action: string): boolean {
 	const config = RATE_LIMITS[action];
 	if (!config) return false;
-
 	const now = Date.now();
 	if (!rateLimits.has(ip)) rateLimits.set(ip, new Map());
 	const ipBuckets = rateLimits.get(ip)!;
-
 	let bucket = ipBuckets.get(action);
 	if (!bucket || now > bucket.resetAt) {
 		bucket = { count: 0, resetAt: now + config.windowMs };
 		ipBuckets.set(action, bucket);
 	}
-
 	bucket.count++;
 	return bucket.count > config.max;
 }
 
-// Clean up stale rate limit entries every 5 minutes
 setInterval(() => {
 	const now = Date.now();
 	for (const [ip, buckets] of rateLimits) {
@@ -55,21 +90,23 @@ setInterval(() => {
 	}
 }, 300_000);
 
+// ── Socket setup ────────────────────────────────────────────
+
 export function setupSocketHandlers(io: Server): void {
-	// Wire engine callbacks to Socket.io
-	engine.setCallbacks(
-		// broadcast to all in room
-		(event, data) => io.emit(event, data),
-		// emit to specific player
-		(playerId, event, data) => io.to(playerId).emit(event, data),
-		// timer tick
-		(remaining) => io.emit('game:timer', { remaining })
-	);
+
+	function wireEngineCallbacks(engine: GameEngine, sessionId: string) {
+		if ((engine as any)._callbacksWired) return;
+		engine.setCallbacks(
+			(event, data) => io.to(`session:${sessionId}`).emit(event, data),
+			(socketId, event, data) => io.to(socketId).emit(event, data),
+			(remaining) => io.to(`session:${sessionId}`).emit('game:timer', { remaining })
+		);
+		(engine as any)._callbacksWired = true;
+	}
 
 	io.on('connection', (socket: Socket) => {
 		const ip = getClientIp(socket);
 
-		// Rate limit connections
 		if (isRateLimited(ip, 'connection')) {
 			console.log(`[socket] rate-limited connection from ${ip}`);
 			socket.emit('player:error', { message: 'Too many connections. Try again later.' });
@@ -79,10 +116,27 @@ export function setupSocketHandlers(io: Server): void {
 
 		console.log(`[socket] connected: ${socket.id}`);
 
-		// ── TV connects ──────────────────────────────────
-		socket.on('tv:connect', () => {
-			console.log(`[socket] TV connected: ${socket.id}`);
+		// ── Join a session room ──────────────────────────
+		socket.on('session:join', (data: { sessionId: string; role: 'tv' | 'player' }) => {
+			const { sessionId, role } = data;
+			const engine = getOrCreateSession(sessionId);
+			wireEngineCallbacks(engine, sessionId);
+
+			socket.join(`session:${sessionId}`);
+			socketToSession.set(socket.id, sessionId);
+
+			console.log(`[socket] ${role} joined session ${sessionId}: ${socket.id}`);
+
+			// Send full state
 			socket.emit('game:state', engine.getFullState());
+		});
+
+		// ── TV connects (legacy, also handles session) ───
+		socket.on('tv:connect', () => {
+			const sess = getSessionForSocket(socket.id);
+			if (sess) {
+				socket.emit('game:state', sess.engine.getFullState());
+			}
 		});
 
 		// ── Player joins ─────────────────────────────────
@@ -92,24 +146,53 @@ export function setupSocketHandlers(io: Server): void {
 				return;
 			}
 
-			const { name, avatar } = data;
+			const sess = getSessionForSocket(socket.id);
+			if (!sess) {
+				socket.emit('player:error', { message: 'Join a session first.' });
+				return;
+			}
 
+			const { name, avatar } = data;
 			if (!name || typeof name !== 'string' || name.trim().length === 0 || name.trim().length > 20) {
 				socket.emit('player:error', { message: 'Name is required (max 20 characters)' });
 				return;
 			}
 
-			const player = engine.addPlayer(socket.id, name.trim(), avatar);
-			console.log(`[socket] player joined: ${player.name} (${player.avatar})`);
+			const player = sess.engine.addPlayer(socket.id, name.trim(), avatar);
+			console.log(`[socket] player joined session ${sess.sessionId}: ${player.name} (${player.avatar})`);
 
-			// Send full state to the new player
-			socket.emit('game:state', engine.getFullState());
+			// Send back stable player ID for localStorage persistence
+			socket.emit('player:joined', { playerId: player.id });
+			socket.emit('game:state', sess.engine.getFullState());
 
-			// Broadcast updated lobby to everyone
-			io.emit('lobby:update', {
-				players: Array.from(engine.players.values()),
-				canStart: engine.getActivePlayers().length > 0
+			io.to(`session:${sess.sessionId}`).emit('lobby:update', {
+				players: Array.from(sess.engine.players.values()),
+				canStart: sess.engine.getActivePlayers().length > 0
 			});
+		});
+
+		// ── Player reconnects ────────────────────────────
+		socket.on('player:reconnect', (data: { playerId: string }) => {
+			const sess = getSessionForSocket(socket.id);
+			if (!sess) {
+				socket.emit('player:error', { message: 'Join a session first.' });
+				return;
+			}
+
+			const player = sess.engine.reconnectPlayer(data.playerId, socket.id);
+			if (player) {
+				console.log(`[socket] player reconnected in session ${sess.sessionId}: ${player.name}`);
+				socket.emit('player:joined', { playerId: player.id });
+				socket.emit('game:state', sess.engine.getFullState());
+
+				io.to(`session:${sess.sessionId}`).emit('lobby:update', {
+					players: Array.from(sess.engine.players.values()),
+					canStart: sess.engine.getActivePlayers().length > 0
+				});
+			} else {
+				// Player not found — they need to re-join
+				socket.emit('player:error', { message: 'Session expired. Please rejoin.' });
+			}
 		});
 
 		// ── Player leaves ────────────────────────────────
@@ -128,14 +211,15 @@ export function setupSocketHandlers(io: Server): void {
 				return;
 			}
 
-			const { packSlug, mode, numRounds } = data;
+			const sess = getSessionForSocket(socket.id);
+			if (!sess) return;
 
-			if (engine.phase !== 'LOBBY') {
+			if (sess.engine.phase !== 'LOBBY') {
 				socket.emit('player:error', { message: 'Game is not in lobby phase' });
 				return;
 			}
 
-			const success = engine.startGame(packSlug, mode, numRounds);
+			const success = sess.engine.startGame(data.packSlug, data.mode, data.numRounds);
 			if (!success) {
 				socket.emit('player:error', { message: 'Failed to start game. Check verse pack.' });
 			}
@@ -148,8 +232,11 @@ export function setupSocketHandlers(io: Server): void {
 				return;
 			}
 
-			engine.submitAnswer(socket.id, {
-				playerId: socket.id,
+			const sess = getSessionForSocket(socket.id);
+			if (!sess) return;
+
+			sess.engine.submitAnswer(socket.id, {
+				playerId: '', // engine resolves via socketId
 				roundNumber: data.roundNumber,
 				answer: data.answer,
 				timeMs: data.timeMs
@@ -163,24 +250,38 @@ export function setupSocketHandlers(io: Server): void {
 				return;
 			}
 
-			engine.playAgain();
+			const sess = getSessionForSocket(socket.id);
+			if (!sess) return;
+			sess.engine.playAgain();
 		});
 
 		// ── Get available packs ──────────────────────────
 		socket.on('game:get-packs', () => {
-			socket.emit('game:packs', engine.getAvailablePacks());
+			const sess = getSessionForSocket(socket.id);
+			if (sess) {
+				socket.emit('game:packs', sess.engine.getAvailablePacks());
+			} else {
+				// Allow getting packs even without a session (for setup)
+				const tempEngine = new GameEngine('temp');
+				socket.emit('game:packs', tempEngine.getAvailablePacks());
+			}
 		});
 	});
 }
 
 function handleDisconnect(socket: Socket, io: Server): void {
 	console.log(`[socket] disconnected: ${socket.id}`);
-	engine.removePlayer(socket.id);
 
-	io.emit('lobby:update', {
-		players: Array.from(engine.players.values()),
-		canStart: engine.getActivePlayers().length > 0
-	});
+	const sess = getSessionForSocket(socket.id);
+	if (sess) {
+		sess.engine.removePlayerBySocket(socket.id);
+		socketToSession.delete(socket.id);
+
+		io.to(`session:${sess.sessionId}`).emit('lobby:update', {
+			players: Array.from(sess.engine.players.values()),
+			canStart: sess.engine.getActivePlayers().length > 0
+		});
+	}
 }
 
-export { engine };
+export { sessions, generateSessionId };

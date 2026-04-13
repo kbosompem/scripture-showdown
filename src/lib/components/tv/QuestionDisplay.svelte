@@ -33,8 +33,18 @@
 			<p class="instruction">Name the Book, Chapter & Verse</p>
 
 		{:else if q?.mode === 'quote-it'}
-			<p class="reference-display">{q.reference}</p>
-			<p class="instruction">Quote this verse</p>
+			{#if q.reference}
+				<p class="reference-display">{q.reference}</p>
+			{/if}
+			{#if q.textWithBlanks}
+				<p class="verse-display verse-blanked">
+					{@html (q.textWithBlanks || '').replace(
+						/___(\d+)___/g,
+						'<span class="blank">____$1____</span>'
+					)}
+				</p>
+			{/if}
+			<p class="instruction">Fill in the missing words</p>
 
 		{:else if q?.mode === 'speed-recall'}
 			{#if !gameStore.speedRecallHidden}
@@ -87,18 +97,8 @@
 		gap: 0.25rem;
 	}
 
-	.round-info {
-		font-size: 1.25rem;
-		color: var(--color-ink-muted);
-	}
-
-	.mode-label {
-		font-size: 1.75rem;
-		font-weight: 700;
-		color: var(--color-accent);
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-	}
+	.round-info { font-size: 1.25rem; color: var(--color-ink-muted); }
+	.mode-label { font-size: 1.75rem; font-weight: 700; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.1em; }
 
 	.question-body {
 		flex: 1;
@@ -119,6 +119,10 @@
 		max-width: 85%;
 	}
 
+	.verse-blanked {
+		font-size: 2rem;
+	}
+
 	.verse-display :global(.blank) {
 		color: var(--color-accent);
 		font-weight: 700;
@@ -135,15 +139,12 @@
 
 	.reference-display {
 		font-family: var(--font-verse);
-		font-size: 5rem;
+		font-size: 4rem;
 		font-weight: 900;
 		color: var(--color-ink);
 	}
 
-	.instruction {
-		font-size: 1.75rem;
-		color: var(--color-ink-muted);
-	}
+	.instruction { font-size: 1.75rem; color: var(--color-ink-muted); }
 
 	.memorize-warning {
 		font-size: 1.5rem;
@@ -152,11 +153,7 @@
 		animation: pulse 0.8s ease-in-out infinite alternate;
 	}
 
-	.hidden-verse {
-		font-size: 2.5rem;
-		color: var(--color-ink-muted);
-		font-style: italic;
-	}
+	.hidden-verse { font-size: 2.5rem; color: var(--color-ink-muted); font-style: italic; }
 
 	@keyframes pulse {
 		from { opacity: 0.7; }
@@ -171,32 +168,10 @@
 		border-top: 2px solid var(--color-border);
 	}
 
-	.player-status {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 1.25rem;
-	}
-
-	.player-emoji {
-		font-size: 1.5rem;
-	}
-
-	.player-name-small {
-		color: var(--color-ink);
-		font-weight: 600;
-	}
-
-	.status-dot {
-		font-size: 1rem;
-	}
-
-	.answered {
-		color: var(--color-correct);
-		font-weight: bold;
-	}
-
-	.waiting {
-		color: var(--color-ink-muted);
-	}
+	.player-status { display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem; }
+	.player-emoji { font-size: 1.5rem; }
+	.player-name-small { color: var(--color-ink); font-weight: 600; }
+	.status-dot { font-size: 1rem; }
+	.answered { color: var(--color-correct); font-weight: bold; }
+	.waiting { color: var(--color-ink-muted); }
 </style>

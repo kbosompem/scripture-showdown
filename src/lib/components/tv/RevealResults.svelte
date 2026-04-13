@@ -9,7 +9,12 @@
 		<h2>{gameStore.revealData?.correctReference || gameStore.revealData?.correctAnswer}</h2>
 	</header>
 
-	{#if gameStore.revealData?.correctReference && gameStore.revealData.correctAnswer !== gameStore.revealData.correctReference}
+	{#if gameStore.revealData?.fullVerseText}
+		<p class="full-verse">&ldquo;{gameStore.revealData.fullVerseText}&rdquo;</p>
+		{#if gameStore.revealData.correctReference && gameStore.revealData.correctReference !== gameStore.revealData.correctAnswer}
+			<p class="verse-ref">&mdash; {gameStore.revealData.correctReference}</p>
+		{/if}
+	{:else if gameStore.revealData?.correctReference && gameStore.revealData.correctAnswer !== gameStore.revealData.correctReference}
 		<p class="correct-answer">{gameStore.revealData.correctAnswer}</p>
 	{/if}
 
@@ -42,8 +47,8 @@
 		flex-direction: column;
 		align-items: center;
 		background: var(--color-page);
-		padding: 3rem;
-		gap: 1.5rem;
+		padding: 2rem 3rem;
+		gap: 1rem;
 	}
 
 	.reveal-header {
@@ -60,9 +65,24 @@
 
 	.reveal-header h2 {
 		font-family: var(--font-verse);
-		font-size: 3rem;
+		font-size: 2.5rem;
 		color: var(--color-ink);
 		margin: 0;
+	}
+
+	.full-verse {
+		font-family: var(--font-verse);
+		font-size: 1.5rem;
+		color: var(--color-ink-verse);
+		max-width: 80%;
+		text-align: center;
+		line-height: 1.7;
+	}
+
+	.verse-ref {
+		font-style: italic;
+		font-size: 1.25rem;
+		color: var(--color-ink-muted);
 	}
 
 	.correct-answer {
@@ -80,13 +100,15 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.75rem;
+		overflow-y: auto;
+		flex: 1;
 	}
 
 	.result-row {
 		display: flex;
 		align-items: center;
 		gap: 1rem;
-		padding: 1rem 1.5rem;
+		padding: 0.75rem 1.5rem;
 		border-radius: 0.75rem;
 		border: 2px solid var(--color-border);
 		background: var(--color-card);
@@ -102,39 +124,10 @@
 		background: rgba(198, 40, 40, 0.03);
 	}
 
-	.result-avatar {
-		font-size: 2rem;
-	}
-
-	.result-name {
-		font-size: 1.5rem;
-		font-weight: 700;
-		color: var(--color-ink);
-		width: 120px;
-	}
-
-	.result-answer {
-		flex: 1;
-		font-size: 1.25rem;
-		color: var(--color-ink-muted);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.result-points {
-		font-size: 1.5rem;
-		font-weight: 800;
-		color: var(--color-correct);
-		min-width: 100px;
-		text-align: right;
-	}
-
-	.result-points.zero {
-		color: var(--color-ink-muted);
-	}
-
-	.streak {
-		font-size: 1.25rem;
-	}
+	.result-avatar { font-size: 2rem; }
+	.result-name { font-size: 1.5rem; font-weight: 700; color: var(--color-ink); width: 120px; }
+	.result-answer { flex: 1; font-size: 1.25rem; color: var(--color-ink-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	.result-points { font-size: 1.5rem; font-weight: 800; color: var(--color-correct); min-width: 100px; text-align: right; }
+	.result-points.zero { color: var(--color-ink-muted); }
+	.streak { font-size: 1.25rem; }
 </style>

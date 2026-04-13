@@ -12,11 +12,17 @@
 	// Free text: single textarea
 	let textAnswer = $state('');
 
+	// Quote-it: word choice selections
+	let quoteSelections = $state<string[]>(
+		Array(gameStore.phoneQuestion?.blankCount || 3).fill('')
+	);
+
 	// Name That Reference: step-based selector
 	let selectedBook = $state('');
 	let selectedChapter = $state('');
 	let selectedVerse = $state('');
-	let refStep = $state<'book' | 'chapter' | 'verse'>('book');
+	let refStep = $state<'testament' | 'book' | 'chapter' | 'verse'>('testament');
+	let selectedTestament = $state<'OT' | 'NT' | ''>('');
 
 	let mode = $derived(gameStore.phoneQuestion?.mode);
 	let showVerseForRecall = $derived(mode === 'speed-recall' && !gameStore.speedRecallHidden);
@@ -28,6 +34,8 @@
 			onSubmit(gapAnswers);
 		} else if (mode === 'name-that-reference') {
 			onSubmit(`${selectedBook} ${selectedChapter}:${selectedVerse}`);
+		} else if (mode === 'quote-it') {
+			onSubmit(quoteSelections);
 		} else {
 			onSubmit(textAnswer);
 		}
@@ -36,6 +44,8 @@
 	function skip() {
 		if (mode === 'fill-the-gap') {
 			onSubmit(Array(gapAnswers.length).fill(''));
+		} else if (mode === 'quote-it') {
+			onSubmit(Array(quoteSelections.length).fill(''));
 		} else {
 			onSubmit('');
 		}
@@ -44,7 +54,15 @@
 	// Load bible structure for reference selector
 	import bibleStructure from '$lib/data/bible-structure.json';
 
-	let books = bibleStructure.books.map(b => b.name);
+	const OT_BOOKS = bibleStructure.books.slice(0, 39);
+	const NT_BOOKS = bibleStructure.books.slice(39);
+
+	let filteredBooks = $derived(
+		selectedTestament === 'OT' ? OT_BOOKS :
+		selectedTestament === 'NT' ? NT_BOOKS :
+		bibleStructure.books
+	);
+
 	let chapterCount = $derived(
 		selectedBook
 			? bibleStructure.books.find(b => b.name === selectedBook)?.chapters.length || 0
@@ -55,6 +73,14 @@
 			? bibleStructure.books.find(b => b.name === selectedBook)?.chapters[parseInt(selectedChapter) - 1] || 0
 			: 0
 	);
+
+	function selectTestament(t: 'OT' | 'NT') {
+		selectedTestament = t;
+		selectedBook = '';
+		selectedChapter = '';
+		selectedVerse = '';
+		refStep = 'book';
+	}
 
 	function selectBook(book: string) {
 		selectedBook = book;
@@ -73,6 +99,14 @@
 		selectedVerse = String(v);
 	}
 
+	function goBackToTestament() {
+		selectedTestament = '';
+		selectedBook = '';
+		selectedChapter = '';
+		selectedVerse = '';
+		refStep = 'testament';
+	}
+
 	function goBackToBooks() {
 		selectedBook = '';
 		selectedChapter = '';
@@ -86,28 +120,9 @@
 		refStep = 'chapter';
 	}
 
-	// Short book name for grid display
-	function shortName(name: string): string {
-		const abbrevs: Record<string, string> = {
-			'Genesis': 'Gen', 'Exodus': 'Exod', 'Leviticus': 'Lev', 'Numbers': 'Num',
-			'Deuteronomy': 'Deut', 'Joshua': 'Josh', 'Judges': 'Judg', 'Ruth': 'Ruth',
-			'1 Samuel': '1 Sam', '2 Samuel': '2 Sam', '1 Kings': '1 Kgs', '2 Kings': '2 Kgs',
-			'1 Chronicles': '1 Chr', '2 Chronicles': '2 Chr', 'Ezra': 'Ezra', 'Nehemiah': 'Neh',
-			'Esther': 'Esth', 'Job': 'Job', 'Psalms': 'Ps', 'Proverbs': 'Prov',
-			'Ecclesiastes': 'Eccl', 'Song of Solomon': 'Song', 'Isaiah': 'Isa', 'Jeremiah': 'Jer',
-			'Lamentations': 'Lam', 'Ezekiel': 'Ezek', 'Daniel': 'Dan', 'Hosea': 'Hos',
-			'Joel': 'Joel', 'Amos': 'Amos', 'Obadiah': 'Obad', 'Jonah': 'Jonah',
-			'Micah': 'Mic', 'Nahum': 'Nah', 'Habakkuk': 'Hab', 'Zephaniah': 'Zeph',
-			'Haggai': 'Hag', 'Zechariah': 'Zech', 'Malachi': 'Mal',
-			'Matthew': 'Matt', 'Mark': 'Mark', 'Luke': 'Luke', 'John': 'John',
-			'Acts': 'Acts', 'Romans': 'Rom', '1 Corinthians': '1 Cor', '2 Corinthians': '2 Cor',
-			'Galatians': 'Gal', 'Ephesians': 'Eph', 'Philippians': 'Phil', 'Colossians': 'Col',
-			'1 Thessalonians': '1 Thes', '2 Thessalonians': '2 Thes', '1 Timothy': '1 Tim',
-			'2 Timothy': '2 Tim', 'Titus': 'Titus', 'Philemon': 'Phlm', 'Hebrews': 'Heb',
-			'James': 'Jas', '1 Peter': '1 Pet', '2 Peter': '2 Pet', '1 John': '1 Jn',
-			'2 John': '2 Jn', '3 John': '3 Jn', 'Jude': 'Jude', 'Revelation': 'Rev'
-		};
-		return abbrevs[name] || name;
+	function selectQuoteWord(blankIndex: number, word: string) {
+		quoteSelections[blankIndex] = word;
+		quoteSelections = [...quoteSelections]; // trigger reactivity
 	}
 </script>
 
@@ -150,16 +165,31 @@
 				{/each}
 
 			{:else if mode === 'name-that-reference'}
-				{#if refStep === 'book'}
-					<p class="input-instruction">Select a Book</p>
+				{#if refStep === 'testament'}
+					<p class="input-instruction">Select Testament</p>
+					<div class="testament-grid">
+						<button type="button" class="grid-btn testament-btn" onclick={() => selectTestament('OT')}>
+							Old Testament
+						</button>
+						<button type="button" class="grid-btn testament-btn" onclick={() => selectTestament('NT')}>
+							New Testament
+						</button>
+					</div>
+
+				{:else if refStep === 'book'}
+					<div class="step-header">
+						<button type="button" class="back-btn" onclick={goBackToTestament}>&#8592; Back</button>
+						<span class="step-selection">{selectedTestament === 'OT' ? 'Old Testament' : 'New Testament'}</span>
+					</div>
+					<p class="input-instruction">Select Book</p>
 					<div class="book-grid">
-						{#each books as book (book)}
+						{#each filteredBooks as book (book.name)}
 							<button
 								type="button"
 								class="grid-btn book-btn"
-								onclick={() => selectBook(book)}
+								onclick={() => selectBook(book.name)}
 							>
-								{shortName(book)}
+								{book.name}
 							</button>
 						{/each}
 					</div>
@@ -206,14 +236,38 @@
 				{/if}
 
 			{:else if mode === 'quote-it'}
-				<p class="input-instruction">Quote: {gameStore.phoneQuestion?.reference}</p>
-				<textarea
-					class="input textarea"
-					bind:value={textAnswer}
-					placeholder="Type the verse from memory..."
-					rows="5"
-				></textarea>
-				<p class="fuzzy-note">Typos are OK — fuzzy matching is on</p>
+				<p class="input-instruction">{gameStore.phoneQuestion?.reference}</p>
+				{#if gameStore.phoneQuestion?.textWithBlanks}
+					<p class="quote-verse">
+						{@html (gameStore.phoneQuestion.textWithBlanks).replace(
+							/___(\d+)___/g,
+							(_, num) => {
+								const idx = parseInt(num) - 1;
+								const selected = quoteSelections[idx];
+								return selected
+									? `<span class="filled-blank">${selected}</span>`
+									: `<span class="empty-blank">____${num}____</span>`;
+							}
+						)}
+					</p>
+				{/if}
+				{#each gameStore.phoneQuestion?.wordChoices || [] as choices, i}
+					<div class="word-choice-group">
+						<span class="choice-label">{i + 1}.</span>
+						<div class="word-choices">
+							{#each choices as word}
+								<button
+									type="button"
+									class="word-btn"
+									class:selected-word={quoteSelections[i] === word}
+									onclick={() => selectQuoteWord(i, word)}
+								>
+									{word}
+								</button>
+							{/each}
+						</div>
+					</div>
+				{/each}
 
 			{:else if mode === 'speed-recall'}
 				<p class="input-instruction">Write what you remember!</p>
@@ -228,10 +282,16 @@
 		</div>
 
 		<div class="action-buttons">
-			{#if mode !== 'name-that-reference' || selectedVerse}
-				<button class="btn btn-primary submit-btn" onclick={submit}>
-					Submit
-				</button>
+			{#if mode === 'name-that-reference'}
+				{#if selectedVerse}
+					<button class="btn btn-primary submit-btn" onclick={submit}>Submit</button>
+				{/if}
+			{:else if mode === 'quote-it'}
+				{#if quoteSelections.every(s => s !== '')}
+					<button class="btn btn-primary submit-btn" onclick={submit}>Submit</button>
+				{/if}
+			{:else}
+				<button class="btn btn-primary submit-btn" onclick={submit}>Submit</button>
 			{/if}
 			<button class="btn btn-secondary skip-btn" onclick={skip}>
 				I don't know
@@ -258,11 +318,7 @@
 		margin-bottom: 1rem;
 	}
 
-	.round-label {
-		font-size: 1rem;
-		font-weight: 600;
-		color: var(--color-ink-muted);
-	}
+	.round-label { font-size: 1rem; font-weight: 600; color: var(--color-ink-muted); }
 
 	.submitted-msg {
 		flex: 1;
@@ -273,21 +329,9 @@
 		gap: 0.5rem;
 	}
 
-	.check {
-		font-size: 3rem;
-		color: var(--color-correct);
-	}
-
-	.submitted-msg p {
-		font-size: 1.25rem;
-		color: var(--color-ink);
-		font-weight: 600;
-	}
-
-	.waiting-reveal {
-		color: var(--color-ink-muted) !important;
-		font-weight: 400 !important;
-	}
+	.check { font-size: 3rem; color: var(--color-correct); }
+	.submitted-msg p { font-size: 1.25rem; color: var(--color-ink); font-weight: 600; }
+	.waiting-reveal { color: var(--color-ink-muted) !important; font-weight: 400 !important; }
 
 	.recall-display {
 		flex: 1;
@@ -299,24 +343,9 @@
 		padding: 1rem;
 	}
 
-	.recall-instruction {
-		font-size: 1.25rem;
-		color: var(--color-accent);
-		font-weight: 700;
-	}
-
-	.recall-verse {
-		font-family: var(--font-verse);
-		font-size: 1.25rem;
-		line-height: 1.8;
-		color: var(--color-ink-verse);
-		text-align: center;
-	}
-
-	.recall-ref {
-		font-style: italic;
-		color: var(--color-ink-muted);
-	}
+	.recall-instruction { font-size: 1.25rem; color: var(--color-accent); font-weight: 700; }
+	.recall-verse { font-family: var(--font-verse); font-size: 1.25rem; line-height: 1.8; color: var(--color-ink-verse); text-align: center; }
+	.recall-ref { font-style: italic; color: var(--color-ink-muted); }
 
 	.input-area {
 		flex: 1;
@@ -326,30 +355,31 @@
 		overflow-y: auto;
 	}
 
-	.input-instruction {
-		font-size: 1rem;
-		font-weight: 600;
-		color: var(--color-ink);
+	.input-instruction { font-size: 1rem; font-weight: 600; color: var(--color-ink); }
+
+	.gap-field { display: flex; align-items: center; gap: 0.75rem; }
+	.gap-label { font-size: 1.25rem; font-weight: 700; color: var(--color-accent); width: 2rem; }
+
+	/* ── Testament selection (2 large buttons) ── */
+	.testament-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1rem;
+		margin-top: 0.5rem;
 	}
 
-	.gap-field {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-	}
-
-	.gap-label {
-		font-size: 1.25rem;
+	.testament-btn {
+		padding: 2rem 1rem;
+		font-size: 1.125rem;
 		font-weight: 700;
-		color: var(--color-accent);
-		width: 2rem;
+		min-height: 80px;
 	}
 
-	/* ── Book grid (7 columns) ── */
+	/* ── Book grid (5 columns, bigger buttons after OT/NT split) ── */
 	.book-grid {
 		display: grid;
-		grid-template-columns: repeat(7, 1fr);
-		gap: 0.3rem;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 0.35rem;
 	}
 
 	.grid-btn {
@@ -371,15 +401,15 @@
 	}
 
 	.book-btn {
-		padding: 0.4rem 0.15rem;
-		font-size: 0.65rem;
+		padding: 0.5rem 0.25rem;
+		font-size: 0.8rem;
 		min-height: 48px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
 
-	/* ── Number grid (7 columns for ch/verse) ── */
+	/* ── Number grid (7 columns) ── */
 	.num-grid {
 		display: grid;
 		grid-template-columns: repeat(7, 1fr);
@@ -421,11 +451,7 @@
 		min-height: 48px;
 	}
 
-	.step-selection {
-		font-size: 1.125rem;
-		font-weight: 700;
-		color: var(--color-accent);
-	}
+	.step-selection { font-size: 1.125rem; font-weight: 700; color: var(--color-accent); }
 
 	.preview-ref {
 		font-family: var(--font-verse);
@@ -435,17 +461,81 @@
 		font-weight: 700;
 	}
 
+	/* ── Quote-it word choices ── */
+	.quote-verse {
+		font-family: var(--font-verse);
+		font-size: 1rem;
+		line-height: 1.8;
+		color: var(--color-ink-verse);
+		text-align: center;
+		padding: 0.5rem;
+	}
+
+	.quote-verse :global(.empty-blank) {
+		color: var(--color-accent);
+		font-weight: 700;
+		border-bottom: 2px solid var(--color-accent);
+		padding: 0 0.15rem;
+	}
+
+	.quote-verse :global(.filled-blank) {
+		color: white;
+		background: var(--color-accent);
+		font-weight: 700;
+		padding: 0.1rem 0.4rem;
+		border-radius: 0.25rem;
+	}
+
+	.word-choice-group {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.choice-label {
+		font-size: 1rem;
+		font-weight: 700;
+		color: var(--color-accent);
+		width: 1.5rem;
+	}
+
+	.word-choices {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		flex: 1;
+	}
+
+	.word-btn {
+		padding: 0.5rem 0.75rem;
+		border: 2px solid var(--color-border);
+		border-radius: 0.375rem;
+		background: var(--color-card);
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: var(--color-ink);
+		cursor: pointer;
+		min-height: 48px;
+		transition: all 100ms ease;
+	}
+
+	.word-btn:active {
+		transform: scale(0.95);
+	}
+
+	.selected-word {
+		background: var(--color-accent);
+		color: white;
+		border-color: var(--color-accent);
+	}
+
 	.textarea {
 		resize: none;
 		font-family: var(--font-verse);
 		line-height: 1.6;
 	}
 
-	.fuzzy-note {
-		font-size: 0.75rem;
-		color: var(--color-ink-muted);
-		text-align: center;
-	}
+	.fuzzy-note { font-size: 0.75rem; color: var(--color-ink-muted); text-align: center; }
 
 	.action-buttons {
 		display: flex;
@@ -454,7 +544,5 @@
 		padding: 1rem 0;
 	}
 
-	.submit-btn, .skip-btn {
-		width: 100%;
-	}
+	.submit-btn, .skip-btn { width: 100%; }
 </style>
