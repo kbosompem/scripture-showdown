@@ -1,19 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { PLAYER_AVATARS, AVATAR_EMOJI, type Avatar } from '$lib/types/index.js';
+	import { PLAYER_AVATARS, AVATAR_EMOJI, normalizeAvatar, type Avatar } from '$lib/types/index.js';
 	import { browser } from '$app/environment';
 
 	let { onJoin }: { onJoin: (name: string, avatar: Avatar) => void } = $props();
 
 	let name = $state('');
-	let selectedAvatar = $state<Avatar>('lion');
+	let selectedAvatar = $state<Avatar>('man');
 
 	onMount(() => {
 		if (browser) {
 			const savedName = localStorage.getItem('ss_playerName');
-			const savedAvatar = localStorage.getItem('ss_playerAvatar') as Avatar | null;
+			const savedAvatar = localStorage.getItem('ss_playerAvatar');
 			if (savedName) name = savedName;
-			if (savedAvatar && PLAYER_AVATARS.includes(savedAvatar)) selectedAvatar = savedAvatar;
+			if (savedAvatar) selectedAvatar = normalizeAvatar(savedAvatar);
 		}
 	});
 
@@ -48,9 +48,9 @@
 			autocomplete="off"
 		/>
 
-		<span class="field-label">Pick an icon</span>
+		<span class="field-label">Pick an avatar</span>
 		<div class="avatar-grid">
-			{#each PLAYER_AVATARS.slice(0, 12) as avatar (avatar)}
+			{#each PLAYER_AVATARS as avatar (avatar)}
 				<button
 					type="button"
 					class="avatar-btn"
@@ -107,7 +107,7 @@
 
 	.avatar-grid {
 		display: grid;
-		grid-template-columns: repeat(6, 1fr);
+		grid-template-columns: repeat(5, 1fr);
 		gap: 0.5rem;
 	}
 

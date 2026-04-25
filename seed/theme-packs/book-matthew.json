@@ -1,0 +1,24 @@
+{
+	"slug": "book-matthew",
+	"name": "Matthew",
+	"description": "Verses from the Gospel of Matthew — easy to hard",
+	"icon": "✝️",
+	"supported_modes": ["single-book", "fill-the-gap", "quote-it"],
+	"verses": [
+		{ "book": "Matthew", "chapter": 7, "verse_start": 7, "text": "Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you:", "reference": "Matthew 7:7", "keywords": "ask,seek,knock" },
+		{ "book": "Matthew", "chapter": 11, "verse_start": 28, "text": "Come unto me, all ye that labour and are heavy laden, and I will give you rest.", "reference": "Matthew 11:28", "keywords": "labour,rest,come" },
+		{ "book": "Matthew", "chapter": 7, "verse_start": 1, "text": "Judge not, that ye be not judged.", "reference": "Matthew 7:1", "keywords": "judge" },
+		{ "book": "Matthew", "chapter": 5, "verse_start": 14, "text": "Ye are the light of the world. A city that is set on an hill cannot be hid.", "reference": "Matthew 5:14", "keywords": "light,world,city" },
+		{ "book": "Matthew", "chapter": 6, "verse_start": 33, "text": "But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.", "reference": "Matthew 6:33", "keywords": "seek,kingdom,righteousness" },
+		{ "book": "Matthew", "chapter": 22, "verse_start": 37, "text": "Jesus said unto him, Thou shalt love the Lord thy God with all thy heart, and with all thy soul, and with all thy mind.", "reference": "Matthew 22:37", "keywords": "love,Lord,heart,soul,mind" },
+		{ "book": "Matthew", "chapter": 5, "verse_start": 9, "text": "Blessed are the peacemakers: for they shall be called the children of God.", "reference": "Matthew 5:9", "keywords": "peacemakers,children,God" },
+		{ "book": "Matthew", "chapter": 28, "verse_start": 19, "text": "Go ye therefore, and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost:", "reference": "Matthew 28:19", "keywords": "teach,nations,baptize,Father,Son,Holy Ghost" },
+		{ "book": "Matthew", "chapter": 5, "verse_start": 3, "text": "Blessed are the poor in spirit: for theirs is the kingdom of heaven.", "reference": "Matthew 5:3", "keywords": "blessed,poor,spirit,kingdom,heaven" },
+		{ "book": "Matthew", "chapter": 18, "verse_start": 20, "text": "For where two or three are gathered together in my name, there am I in the midst of them.", "reference": "Matthew 18:20", "keywords": "two,three,gathered,name,midst" },
+		{ "book": "Matthew", "chapter": 16, "verse_start": 16, "text": "And Simon Peter answered and said, Thou art the Christ, the Son of the living God.", "reference": "Matthew 16:16", "keywords": "Peter,Christ,Son,living,God" },
+		{ "book": "Matthew", "chapter": 5, "verse_start": 44, "text": "But I say unto you, Love your enemies, bless them that curse you, do good to them that hate you, and pray for them which despitefully use you, and persecute you;", "reference": "Matthew 5:44", "keywords": "love,enemies,bless,curse,pray" },
+		{ "book": "Matthew", "chapter": 6, "verse_start": 19, "text": "Lay not up for yourselves treasures upon earth, where moth and rust doth corrupt, and where thieves break through and steal:", "reference": "Matthew 6:19", "keywords": "treasures,earth,moth,rust,thieves" },
+		{ "book": "Matthew", "chapter": 24, "verse_start": 35, "text": "Heaven and earth shall pass away, but my words shall not pass away.", "reference": "Matthew 24:35", "keywords": "heaven,earth,pass,words" },
+		{ "book": "Matthew", "chapter": 19, "verse_start": 26, "text": "But Jesus beheld them, and said unto them, With men this is impossible; but with God all things are possible.", "reference": "Matthew 19:26", "keywords": "impossible,God,all things,possible" }
+	]
+}

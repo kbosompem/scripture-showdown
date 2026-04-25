@@ -9,7 +9,7 @@
 	}: {
 		onStart: (packSlug: string, mode: GameMode, numRounds: number) => void;
 		canStart: boolean;
-		packs: { slug: string; name: string; icon: string; verseCount: number }[];
+		packs: { slug: string; name: string; icon: string; verseCount: number; supportedModes?: GameMode[] }[];
 	} = $props();
 
 	let showSetup = $state(false);
@@ -17,11 +17,27 @@
 	let selectedMode = $state<GameMode>('fill-the-gap');
 	let numRounds = $state(10);
 
-	const modes: { value: GameMode; label: string }[] = [
+	const ALL_MODES: { value: GameMode; label: string }[] = [
 		{ value: 'fill-the-gap', label: 'Fill the Gap' },
 		{ value: 'name-that-reference', label: 'Name That Reference' },
-		{ value: 'quote-it', label: 'Quote It' }
+		{ value: 'quote-it', label: 'Quote It' },
+		{ value: 'who-said-this', label: 'Who Said This?' },
+		{ value: 'bible-numbers', label: 'Bible Numbers' },
+		{ value: 'single-book', label: 'Single Book' }
 	];
+
+	let currentPack = $derived(packs.find(p => p.slug === selectedPack));
+	let availableModes = $derived(
+		currentPack?.supportedModes?.length
+			? ALL_MODES.filter(m => currentPack!.supportedModes!.includes(m.value))
+			: ALL_MODES.slice(0, 3)
+	);
+
+	$effect(() => {
+		if (availableModes.length > 0 && !availableModes.some(m => m.value === selectedMode)) {
+			selectedMode = availableModes[0].value;
+		}
+	});
 
 	function handleStart() {
 		if (selectedPack && selectedMode) {
@@ -32,7 +48,7 @@
 
 <div class="waiting-screen">
 	<div class="player-badge">
-		<span class="badge-avatar">{AVATAR_EMOJI[gameStore.players.find(p => p.connected)?.avatar as Avatar || 'lion']}</span>
+		<span class="badge-avatar">{AVATAR_EMOJI[gameStore.players.find(p => p.connected)?.avatar as Avatar || 'man']}</span>
 		<span class="badge-name">You're in!</span>
 	</div>
 
@@ -69,7 +85,7 @@
 
 				<label class="field-label">Mode</label>
 				<div class="mode-grid">
-					{#each modes as m (m.value)}
+					{#each availableModes as m (m.value)}
 						<button
 							class="mode-btn"
 							class:selected={selectedMode === m.value}

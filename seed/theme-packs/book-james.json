@@ -1,0 +1,22 @@
+{
+	"slug": "book-james",
+	"name": "James",
+	"description": "The epistle of James — easy to hard",
+	"icon": "🌿",
+	"supported_modes": ["single-book", "fill-the-gap", "quote-it"],
+	"verses": [
+		{ "book": "James", "chapter": 1, "verse_start": 5, "text": "If any of you lack wisdom, let him ask of God, that giveth to all men liberally, and upbraideth not; and it shall be given him.", "reference": "James 1:5", "keywords": "wisdom,ask,God,liberally,given" },
+		{ "book": "James", "chapter": 4, "verse_start": 7, "text": "Submit yourselves therefore to God. Resist the devil, and he will flee from you.", "reference": "James 4:7", "keywords": "submit,God,resist,devil,flee" },
+		{ "book": "James", "chapter": 4, "verse_start": 8, "text": "Draw nigh to God, and he will draw nigh to you. Cleanse your hands, ye sinners; and purify your hearts, ye double minded.", "reference": "James 4:8", "keywords": "draw nigh,God,cleanse,hands,purify,hearts" },
+		{ "book": "James", "chapter": 1, "verse_start": 19, "text": "Wherefore, my beloved brethren, let every man be swift to hear, slow to speak, slow to wrath:", "reference": "James 1:19", "keywords": "swift,hear,slow,speak,wrath" },
+		{ "book": "James", "chapter": 2, "verse_start": 17, "text": "Even so faith, if it hath not works, is dead, being alone.", "reference": "James 2:17", "keywords": "faith,works,dead,alone" },
+		{ "book": "James", "chapter": 1, "verse_start": 17, "text": "Every good gift and every perfect gift is from above, and cometh down from the Father of lights, with whom is no variableness, neither shadow of turning.", "reference": "James 1:17", "keywords": "good gift,perfect gift,Father,lights,variableness,shadow" },
+		{ "book": "James", "chapter": 5, "verse_start": 16, "text": "Confess your faults one to another, and pray one for another, that ye may be healed. The effectual fervent prayer of a righteous man availeth much.", "reference": "James 5:16", "keywords": "confess,faults,pray,healed,fervent,prayer,righteous" },
+		{ "book": "James", "chapter": 1, "verse_start": 12, "text": "Blessed is the man that endureth temptation: for when he is tried, he shall receive the crown of life, which the Lord hath promised to them that love him.", "reference": "James 1:12", "keywords": "blessed,man,endureth,temptation,crown,life,Lord,promised,love" },
+		{ "book": "James", "chapter": 2, "verse_start": 26, "text": "For as the body without the spirit is dead, so faith without works is dead also.", "reference": "James 2:26", "keywords": "body,spirit,dead,faith,works" },
+		{ "book": "James", "chapter": 1, "verse_start": 22, "text": "But be ye doers of the word, and not hearers only, deceiving your own selves.", "reference": "James 1:22", "keywords": "doers,word,hearers,deceiving" },
+		{ "book": "James", "chapter": 3, "verse_start": 10, "text": "Out of the same mouth proceedeth blessing and cursing. My brethren, these things ought not so to be.", "reference": "James 3:10", "keywords": "mouth,blessing,cursing" },
+		{ "book": "James", "chapter": 1, "verse_start": 27, "text": "Pure religion and undefiled before God and the Father is this, To visit the fatherless and widows in their affliction, and to keep himself unspotted from the world.", "reference": "James 1:27", "keywords": "pure,religion,undefiled,God,Father,fatherless,widows,affliction,unspotted" },
+		{ "book": "James", "chapter": 5, "verse_start": 7, "text": "Be patient therefore, brethren, unto the coming of the Lord. Behold, the husbandman waiteth for the precious fruit of the earth, and hath long patience for it, until he receive the early and latter rain.", "reference": "James 5:7", "keywords": "patient,coming,Lord,husbandman,precious,fruit,earth,patience,early,latter,rain" }
+	]
+}

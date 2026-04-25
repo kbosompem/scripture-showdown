@@ -46,6 +46,22 @@
 			{/if}
 			<p class="instruction">Fill in the missing words</p>
 
+		{:else if q?.mode === 'who-said-this' || q?.mode === 'bible-numbers'}
+			{#if q.question}
+				<p class="verse-display">{q.question}</p>
+			{/if}
+			{#if q.reference}
+				<p class="verse-ref">&mdash; {q.reference}</p>
+			{/if}
+			<p class="instruction">Pick the correct answer</p>
+
+		{:else if q?.mode === 'single-book'}
+			<p class="verse-display">&ldquo;{q.text}&rdquo;</p>
+			{#if q.book}
+				<p class="reference-display">{q.book}</p>
+			{/if}
+			<p class="instruction">Name the Chapter & Verse</p>
+
 		{/if}
 	</main>
 

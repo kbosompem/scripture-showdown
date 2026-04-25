@@ -6,9 +6,7 @@
 	let qrDataUrl = $state('');
 
 	onMount(async () => {
-		const host = window.location.hostname;
-		const port = window.location.port;
-		const gameUrl = `http://${host}${port ? ':' + port : ''}/play/${sessionId}`;
+		const gameUrl = `${window.location.origin}/play/${sessionId}`;
 
 		const QRCode = await import('qrcode');
 		qrDataUrl = await QRCode.toDataURL(gameUrl, {

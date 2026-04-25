@@ -22,6 +22,19 @@ export function getDb(): Database.Database {
 	return db;
 }
 
+function migrateSchema(db: Database.Database): void {
+	const verseCols = db.pragma('table_info(verses)') as { name: string }[];
+	if (!verseCols.some((c) => c.name === 'sort_order')) {
+		db.exec('ALTER TABLE verses ADD COLUMN sort_order INTEGER DEFAULT 0');
+	}
+	const packCols = db.pragma('table_info(verse_packs)') as { name: string }[];
+	if (!packCols.some((c) => c.name === 'supported_modes')) {
+		db.exec(
+			"ALTER TABLE verse_packs ADD COLUMN supported_modes TEXT DEFAULT 'fill-the-gap,name-that-reference,quote-it'"
+		);
+	}
+}
+
 function initSchema(db: Database.Database): void {
 	db.exec(`
 		CREATE TABLE IF NOT EXISTS teams (
@@ -40,12 +53,13 @@ function initSchema(db: Database.Database): void {
 		);
 
 		CREATE TABLE IF NOT EXISTS verse_packs (
-			id          INTEGER PRIMARY KEY AUTOINCREMENT,
-			slug        TEXT NOT NULL UNIQUE,
-			name        TEXT NOT NULL,
-			description TEXT,
-			icon        TEXT,
-			sort_order  INTEGER DEFAULT 0
+			id              INTEGER PRIMARY KEY AUTOINCREMENT,
+			slug            TEXT NOT NULL UNIQUE,
+			name            TEXT NOT NULL,
+			description     TEXT,
+			icon            TEXT,
+			sort_order      INTEGER DEFAULT 0,
+			supported_modes TEXT DEFAULT 'fill-the-gap,name-that-reference,quote-it'
 		);
 
 		CREATE TABLE IF NOT EXISTS verses (
@@ -57,7 +71,20 @@ function initSchema(db: Database.Database): void {
 			verse_end   INTEGER,
 			text        TEXT NOT NULL,
 			reference   TEXT NOT NULL,
-			keywords    TEXT
+			keywords    TEXT,
+			sort_order  INTEGER DEFAULT 0
+		);
+
+		CREATE TABLE IF NOT EXISTS pack_quiz_items (
+			id             INTEGER PRIMARY KEY AUTOINCREMENT,
+			pack_id        INTEGER NOT NULL REFERENCES verse_packs(id),
+			mode           TEXT NOT NULL,
+			question       TEXT NOT NULL,
+			correct_answer TEXT NOT NULL,
+			choices        TEXT NOT NULL,
+			reference      TEXT,
+			difficulty     INTEGER DEFAULT 0,
+			explanation    TEXT
 		);
 
 		CREATE TABLE IF NOT EXISTS game_sessions (
@@ -101,7 +128,10 @@ function initSchema(db: Database.Database): void {
 		CREATE INDEX IF NOT EXISTS idx_verses_book ON verses(book, chapter, verse_start);
 		CREATE INDEX IF NOT EXISTS idx_answers_session ON answers(session_id, round_number);
 		CREATE INDEX IF NOT EXISTS idx_session_players_session ON session_players(session_id);
+		CREATE INDEX IF NOT EXISTS idx_quiz_items_pack_mode ON pack_quiz_items(pack_id, mode, difficulty);
 	`);
+
+	migrateSchema(db);
 }
 
 export function closeDb(): void {

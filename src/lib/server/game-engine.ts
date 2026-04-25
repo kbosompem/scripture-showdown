@@ -2,10 +2,14 @@ import type {
 	GamePhase, GameMode, GameState, Player, Avatar, Question,
 	QuestionForTV, QuestionForPhone, PlayerAnswer, ScoredAnswer,
 	LeaderboardEntry, RevealData, FinalData,
-	FillTheGapQuestion, NameThatReferenceQuestion, QuoteItQuestion
+	FillTheGapQuestion, NameThatReferenceQuestion, QuoteItQuestion,
+	MultipleChoiceQuestion, SingleBookQuestion
 } from '../types/index.js';
 import { SCORING } from '../types/index.js';
-import { generateQuestion, getVersesForPack, pickRandomVerses } from './question-generator.js';
+import {
+	generateQuestion, generateMultipleChoice, getVersesForPack, getQuizItemsForPack,
+	pickRandomVerses, pickOrderedVerses, pickQuizItems
+} from './question-generator.js';
 import { fuzzyMatch } from './fuzzy-match.js';
 import { getDb } from './db.js';
 
@@ -117,23 +121,39 @@ export class GameEngine {
 		if (this.phase !== 'LOBBY') return false;
 		if (this.getActivePlayers().length === 0) return false;
 
-		const verses = getVersesForPack(packSlug);
-		if (verses.length === 0) return false;
-
 		const db = getDb();
 		const pack = db.prepare('SELECT name FROM verse_packs WHERE slug = ?').get(packSlug) as { name: string } | undefined;
+
+		let questions: Question[] = [];
+
+		if (mode === 'who-said-this' || mode === 'bible-numbers') {
+			const items = getQuizItemsForPack(packSlug, mode);
+			if (items.length === 0) return false;
+			const selected = pickQuizItems(items, numRounds);
+			questions = selected.map((item) => generateMultipleChoice(item, mode));
+		} else if (mode === 'single-book') {
+			const verses = getVersesForPack(packSlug);
+			if (verses.length === 0) return false;
+			const selected = pickOrderedVerses(verses, numRounds);
+			questions = selected.map((v) => generateQuestion(v, mode));
+		} else {
+			const verses = getVersesForPack(packSlug);
+			if (verses.length === 0) return false;
+			const selected = pickRandomVerses(verses, numRounds);
+			questions = selected.map((v) => generateQuestion(v, mode, verses));
+		}
+
+		if (questions.length === 0) return false;
 
 		this.mode = mode;
 		this.packSlug = packSlug;
 		this.packName = pack?.name || packSlug;
-		this.totalRounds = Math.min(numRounds, verses.length);
+		this.totalRounds = questions.length;
 		this.currentRound = 0;
 		this.timeLimit = SCORING.TIME_LIMITS[mode];
 		this.roundAnswers = new Map();
 		this.postGameRemaining = 0;
-
-		const selected = pickRandomVerses(verses, this.totalRounds);
-		this.questions = selected.map((v) => generateQuestion(v, mode, verses));
+		this.questions = questions;
 
 		for (const player of this.players.values()) {
 			player.score = 0;
@@ -482,6 +502,37 @@ export class GameEngine {
 				isCorrect = accuracyPct >= 1.0;
 				break;
 			}
+			case 'who-said-this':
+			case 'bible-numbers': {
+				const mc = q as MultipleChoiceQuestion;
+				answerText = String(answer.answer);
+				const normalizedActual = answerText.trim().toLowerCase();
+				const normalizedExpected = mc.correctAnswer.trim().toLowerCase();
+				isCorrect = normalizedActual === normalizedExpected;
+				accuracyPct = isCorrect ? 1.0 : 0;
+				const max = q.mode === 'who-said-this'
+					? SCORING.WHO_SAID_THIS_MAX
+					: SCORING.BIBLE_NUMBERS_MAX;
+				basePoints = isCorrect ? max : 0;
+				break;
+			}
+			case 'single-book': {
+				const sb = q as SingleBookQuestion;
+				const raw = String(answer.answer);
+				const parts = raw.split(':');
+				const chapter = parseInt(parts[0]?.trim() || '0');
+				const verse = parseInt(parts[1]?.trim() || '0');
+				answerText = chapter > 0 && verse > 0 ? `${sb.book} ${chapter}:${verse}` : raw;
+				if (chapter === sb.correctReference.chapter && verse === sb.correctReference.verse) {
+					basePoints = SCORING.SINGLE_BOOK_EXACT;
+					accuracyPct = 1.0;
+					isCorrect = true;
+				} else if (chapter === sb.correctReference.chapter) {
+					basePoints = SCORING.SINGLE_BOOK_CHAPTER_ONLY;
+					accuracyPct = 0.4;
+				}
+				break;
+			}
 			}
 
 		const speedBonus =
@@ -532,6 +583,15 @@ export class GameEngine {
 				const qi = q as QuoteItQuestion;
 				return { ...base, reference: qi.reference, textWithBlanks: qi.textWithBlanks, blankCount: qi.blankCount };
 			}
+			case 'who-said-this':
+			case 'bible-numbers': {
+				const mc = q as MultipleChoiceQuestion;
+				return { ...base, question: mc.question, reference: mc.reference };
+			}
+			case 'single-book': {
+				const sb = q as SingleBookQuestion;
+				return { ...base, text: sb.text, book: sb.book };
+			}
 		}
 	}
 
@@ -552,6 +612,15 @@ export class GameEngine {
 			case 'quote-it': {
 				const qi = q as QuoteItQuestion;
 				return { ...base, reference: qi.reference, textWithBlanks: qi.textWithBlanks, blankCount: qi.blankCount, wordChoices: qi.wordChoices };
+			}
+			case 'who-said-this':
+			case 'bible-numbers': {
+				const mc = q as MultipleChoiceQuestion;
+				return { ...base, question: mc.question, choices: mc.choices };
+			}
+			case 'single-book': {
+				const sb = q as SingleBookQuestion;
+				return { ...base, book: sb.book };
 			}
 		}
 	}
@@ -582,6 +651,21 @@ export class GameEngine {
 				correctAnswer = qi.blanks.map((b) => b.word).join(', ');
 				correctReference = qi.reference;
 				fullVerseText = qi.correctText;
+				break;
+			}
+			case 'who-said-this':
+			case 'bible-numbers': {
+				const mc = q as MultipleChoiceQuestion;
+				correctAnswer = mc.correctAnswer;
+				correctReference = mc.reference;
+				fullVerseText = mc.explanation || mc.question;
+				break;
+			}
+			case 'single-book': {
+				const sb = q as SingleBookQuestion;
+				correctAnswer = `${sb.correctReference.book} ${sb.correctReference.chapter}:${sb.correctReference.verse}`;
+				correctReference = correctAnswer;
+				fullVerseText = sb.text;
 				break;
 			}
 			}
@@ -642,17 +726,25 @@ export class GameEngine {
 		};
 	}
 
-	getAvailablePacks(): { slug: string; name: string; icon: string; verseCount: number }[] {
+	getAvailablePacks(): { slug: string; name: string; icon: string; verseCount: number; supportedModes: GameMode[] }[] {
 		const db = getDb();
-		return db
+		const rows = db
 			.prepare(
-				`SELECT vp.slug, vp.name, vp.icon, COUNT(v.id) as verseCount
+				`SELECT vp.slug, vp.name, vp.icon, vp.supported_modes as supportedModes,
+					COALESCE((SELECT COUNT(*) FROM verses v WHERE v.pack_id = vp.id), 0) as verseCount,
+					COALESCE((SELECT COUNT(*) FROM pack_quiz_items q WHERE q.pack_id = vp.id), 0) as quizCount
 				FROM verse_packs vp
-				LEFT JOIN verses v ON v.pack_id = vp.id
-				GROUP BY vp.id
 				ORDER BY vp.sort_order`
 			)
-			.all() as { slug: string; name: string; icon: string; verseCount: number }[];
+			.all() as { slug: string; name: string; icon: string; supportedModes: string | null; verseCount: number; quizCount: number }[];
+
+		return rows.map((r) => ({
+			slug: r.slug,
+			name: r.name,
+			icon: r.icon,
+			verseCount: r.verseCount + r.quizCount,
+			supportedModes: ((r.supportedModes || 'fill-the-gap,name-that-reference,quote-it').split(',').filter(Boolean) as GameMode[])
+		}));
 	}
 
 	// ── Stats ────────────────────────────────────────────────

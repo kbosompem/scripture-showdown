@@ -1,0 +1,23 @@
+{
+	"slug": "book-mark",
+	"name": "Mark",
+	"description": "Verses from the Gospel of Mark — easy to hard",
+	"icon": "🦁",
+	"supported_modes": ["single-book", "fill-the-gap", "quote-it"],
+	"verses": [
+		{ "book": "Mark", "chapter": 16, "verse_start": 15, "text": "And he said unto them, Go ye into all the world, and preach the gospel to every creature.", "reference": "Mark 16:15", "keywords": "go,world,preach,gospel,creature" },
+		{ "book": "Mark", "chapter": 10, "verse_start": 14, "text": "But when Jesus saw it, he was much displeased, and said unto them, Suffer the little children to come unto me, and forbid them not: for of such is the kingdom of God.", "reference": "Mark 10:14", "keywords": "suffer,little children,come,kingdom,God" },
+		{ "book": "Mark", "chapter": 12, "verse_start": 30, "text": "And thou shalt love the Lord thy God with all thy heart, and with all thy soul, and with all thy mind, and with all thy strength: this is the first commandment.", "reference": "Mark 12:30", "keywords": "love,Lord,heart,soul,mind,strength,commandment" },
+		{ "book": "Mark", "chapter": 12, "verse_start": 31, "text": "And the second is like, namely this, Thou shalt love thy neighbour as thyself. There is none other commandment greater than these.", "reference": "Mark 12:31", "keywords": "love,neighbour,thyself,commandment" },
+		{ "book": "Mark", "chapter": 8, "verse_start": 36, "text": "For what shall it profit a man, if he shall gain the whole world, and lose his own soul?", "reference": "Mark 8:36", "keywords": "profit,man,gain,world,soul" },
+		{ "book": "Mark", "chapter": 9, "verse_start": 23, "text": "Jesus said unto him, If thou canst believe, all things are possible to him that believeth.", "reference": "Mark 9:23", "keywords": "believe,all things,possible,believeth" },
+		{ "book": "Mark", "chapter": 11, "verse_start": 24, "text": "Therefore I say unto you, What things soever ye desire, when ye pray, believe that ye receive them, and ye shall have them.", "reference": "Mark 11:24", "keywords": "desire,pray,believe,receive" },
+		{ "book": "Mark", "chapter": 10, "verse_start": 27, "text": "And Jesus looking upon them saith, With men it is impossible, but not with God: for with God all things are possible.", "reference": "Mark 10:27", "keywords": "men,impossible,God,all things,possible" },
+		{ "book": "Mark", "chapter": 1, "verse_start": 15, "text": "And saying, The time is fulfilled, and the kingdom of God is at hand: repent ye, and believe the gospel.", "reference": "Mark 1:15", "keywords": "time,fulfilled,kingdom,repent,believe" },
+		{ "book": "Mark", "chapter": 11, "verse_start": 25, "text": "And when ye stand praying, forgive, if ye have ought against any: that your Father also which is in heaven may forgive you your trespasses.", "reference": "Mark 11:25", "keywords": "praying,forgive,Father,heaven,trespasses" },
+		{ "book": "Mark", "chapter": 10, "verse_start": 9, "text": "What therefore God hath joined together, let not man put asunder.", "reference": "Mark 10:9", "keywords": "God,joined,man,asunder" },
+		{ "book": "Mark", "chapter": 9, "verse_start": 35, "text": "And he sat down, and called the twelve, and saith unto them, If any man desire to be first, the same shall be last of all, and servant of all.", "reference": "Mark 9:35", "keywords": "twelve,first,last,servant" },
+		{ "book": "Mark", "chapter": 13, "verse_start": 31, "text": "Heaven and earth shall pass away: but my words shall not pass away.", "reference": "Mark 13:31", "keywords": "heaven,earth,pass,words" },
+		{ "book": "Mark", "chapter": 14, "verse_start": 38, "text": "Watch ye and pray, lest ye enter into temptation. The spirit truly is ready, but the flesh is weak.", "reference": "Mark 14:38", "keywords": "watch,pray,temptation,spirit,flesh,weak" }
+	]
+}

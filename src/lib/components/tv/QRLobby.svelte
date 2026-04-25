@@ -9,9 +9,7 @@
 	let gameUrl = $state('');
 
 	onMount(async () => {
-		const host = window.location.hostname;
-		const port = window.location.port;
-		gameUrl = `http://${host}${port ? ':' + port : ''}/play/${sessionId}`;
+		gameUrl = `${window.location.origin}/play/${sessionId}`;
 
 		const QRCode = await import('qrcode');
 		qrDataUrl = await QRCode.toDataURL(gameUrl, {
@@ -23,17 +21,17 @@
 	});
 </script>
 
-<div class="lobby">
+<div class="lobby gradient-bg">
 	<header class="lobby-header">
-		<h1>Scripture Showdown</h1>
-		<div class="divider-ornament">&#10045;</div>
+		<h1 class="shimmer-text">Scripture Showdown</h1>
+		<div class="divider-ornament"><span class="animate-sparkle">&#10045;</span></div>
 	</header>
 
 	<div class="lobby-body">
-		<div class="join-section">
+		<div class="join-section animate-float-soft">
 			<h2>Scan to Join</h2>
 			{#if qrDataUrl}
-				<img src={qrDataUrl} alt="QR code to join game" class="qr-code" />
+				<img src={qrDataUrl} alt="QR code to join game" class="qr-code animate-pulse-glow" />
 			{:else}
 				<div class="qr-placeholder">Loading...</div>
 			{/if}
@@ -45,7 +43,7 @@
 			<h2>Players ({gameStore.players.filter(p => p.connected).length}/20)</h2>
 			<div class="player-grid">
 				{#each gameStore.players.filter(p => p.connected) as player (player.id)}
-					<div class="player-card animate-fade-in-up">
+					<div class="player-card animate-slide-in-right">
 						<span class="player-avatar">{AVATAR_EMOJI[player.avatar]}</span>
 						<span class="player-name">{player.name}</span>
 					</div>

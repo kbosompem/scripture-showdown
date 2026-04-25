@@ -1,0 +1,23 @@
+{
+	"slug": "book-luke",
+	"name": "Luke",
+	"description": "Verses from the Gospel of Luke — easy to hard",
+	"icon": "🐂",
+	"supported_modes": ["single-book", "fill-the-gap", "quote-it"],
+	"verses": [
+		{ "book": "Luke", "chapter": 2, "verse_start": 11, "text": "For unto you is born this day in the city of David a Saviour, which is Christ the Lord.", "reference": "Luke 2:11", "keywords": "born,city,David,Saviour,Christ,Lord" },
+		{ "book": "Luke", "chapter": 1, "verse_start": 37, "text": "For with God nothing shall be impossible.", "reference": "Luke 1:37", "keywords": "God,nothing,impossible" },
+		{ "book": "Luke", "chapter": 6, "verse_start": 31, "text": "And as ye would that men should do to you, do ye also to them likewise.", "reference": "Luke 6:31", "keywords": "men,do,likewise,golden rule" },
+		{ "book": "Luke", "chapter": 23, "verse_start": 34, "text": "Then said Jesus, Father, forgive them; for they know not what they do. And they parted his raiment, and cast lots.", "reference": "Luke 23:34", "keywords": "Father,forgive,know,raiment,lots" },
+		{ "book": "Luke", "chapter": 19, "verse_start": 10, "text": "For the Son of man is come to seek and to save that which was lost.", "reference": "Luke 19:10", "keywords": "Son of man,seek,save,lost" },
+		{ "book": "Luke", "chapter": 2, "verse_start": 14, "text": "Glory to God in the highest, and on earth peace, good will toward men.", "reference": "Luke 2:14", "keywords": "glory,God,highest,earth,peace,good will" },
+		{ "book": "Luke", "chapter": 6, "verse_start": 38, "text": "Give, and it shall be given unto you; good measure, pressed down, and shaken together, and running over, shall men give into your bosom. For with the same measure that ye mete withal it shall be measured to you again.", "reference": "Luke 6:38", "keywords": "give,measure,pressed,running over" },
+		{ "book": "Luke", "chapter": 9, "verse_start": 23, "text": "And he said to them all, If any man will come after me, let him deny himself, and take up his cross daily, and follow me.", "reference": "Luke 9:23", "keywords": "deny,cross,daily,follow" },
+		{ "book": "Luke", "chapter": 12, "verse_start": 15, "text": "And he said unto them, Take heed, and beware of covetousness: for a man's life consisteth not in the abundance of the things which he possesseth.", "reference": "Luke 12:15", "keywords": "covetousness,man,life,abundance,possesseth" },
+		{ "book": "Luke", "chapter": 1, "verse_start": 38, "text": "And Mary said, Behold the handmaid of the Lord; be it unto me according to thy word. And the angel departed from her.", "reference": "Luke 1:38", "keywords": "Mary,handmaid,Lord,word,angel" },
+		{ "book": "Luke", "chapter": 10, "verse_start": 27, "text": "And he answering said, Thou shalt love the Lord thy God with all thy heart, and with all thy soul, and with all thy strength, and with all thy mind; and thy neighbour as thyself.", "reference": "Luke 10:27", "keywords": "love,Lord,heart,soul,strength,mind,neighbour" },
+		{ "book": "Luke", "chapter": 15, "verse_start": 7, "text": "I say unto you, that likewise joy shall be in heaven over one sinner that repenteth, more than over ninety and nine just persons, which need no repentance.", "reference": "Luke 15:7", "keywords": "joy,heaven,sinner,repenteth,ninety,nine" },
+		{ "book": "Luke", "chapter": 18, "verse_start": 27, "text": "And he said, The things which are impossible with men are possible with God.", "reference": "Luke 18:27", "keywords": "impossible,men,possible,God" },
+		{ "book": "Luke", "chapter": 11, "verse_start": 9, "text": "And I say unto you, Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you.", "reference": "Luke 11:9", "keywords": "ask,seek,find,knock,opened" }
+	]
+}

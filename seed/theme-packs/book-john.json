@@ -1,0 +1,23 @@
+{
+	"slug": "book-john",
+	"name": "John",
+	"description": "Verses from the Gospel of John — easy to hard",
+	"icon": "🦅",
+	"supported_modes": ["single-book", "fill-the-gap", "quote-it"],
+	"verses": [
+		{ "book": "John", "chapter": 3, "verse_start": 16, "text": "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.", "reference": "John 3:16", "keywords": "God,loved,world,Son,believeth,everlasting,life" },
+		{ "book": "John", "chapter": 14, "verse_start": 6, "text": "Jesus saith unto him, I am the way, the truth, and the life: no man cometh unto the Father, but by me.", "reference": "John 14:6", "keywords": "way,truth,life,Father" },
+		{ "book": "John", "chapter": 11, "verse_start": 35, "text": "Jesus wept.", "reference": "John 11:35", "keywords": "Jesus,wept" },
+		{ "book": "John", "chapter": 11, "verse_start": 25, "text": "Jesus said unto her, I am the resurrection, and the life: he that believeth in me, though he were dead, yet shall he live:", "reference": "John 11:25", "keywords": "resurrection,life,believeth,dead,live" },
+		{ "book": "John", "chapter": 1, "verse_start": 1, "text": "In the beginning was the Word, and the Word was with God, and the Word was God.", "reference": "John 1:1", "keywords": "beginning,Word,God" },
+		{ "book": "John", "chapter": 15, "verse_start": 13, "text": "Greater love hath no man than this, that a man lay down his life for his friends.", "reference": "John 15:13", "keywords": "greater,love,lay,life,friends" },
+		{ "book": "John", "chapter": 8, "verse_start": 32, "text": "And ye shall know the truth, and the truth shall make you free.", "reference": "John 8:32", "keywords": "know,truth,make,free" },
+		{ "book": "John", "chapter": 10, "verse_start": 10, "text": "The thief cometh not, but for to steal, and to kill, and to destroy: I am come that they might have life, and that they might have it more abundantly.", "reference": "John 10:10", "keywords": "thief,steal,kill,destroy,life,abundantly" },
+		{ "book": "John", "chapter": 13, "verse_start": 34, "text": "A new commandment I give unto you, That ye love one another; as I have loved you, that ye also love one another.", "reference": "John 13:34", "keywords": "new,commandment,love,one another" },
+		{ "book": "John", "chapter": 14, "verse_start": 27, "text": "Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you. Let not your heart be troubled, neither let it be afraid.", "reference": "John 14:27", "keywords": "peace,world,heart,troubled,afraid" },
+		{ "book": "John", "chapter": 15, "verse_start": 5, "text": "I am the vine, ye are the branches: He that abideth in me, and I in him, the same bringeth forth much fruit: for without me ye can do nothing.", "reference": "John 15:5", "keywords": "vine,branches,abideth,fruit,nothing" },
+		{ "book": "John", "chapter": 4, "verse_start": 24, "text": "God is a Spirit: and they that worship him must worship him in spirit and in truth.", "reference": "John 4:24", "keywords": "God,Spirit,worship,truth" },
+		{ "book": "John", "chapter": 10, "verse_start": 11, "text": "I am the good shepherd: the good shepherd giveth his life for the sheep.", "reference": "John 10:11", "keywords": "good shepherd,life,sheep" },
+		{ "book": "John", "chapter": 16, "verse_start": 33, "text": "These things I have spoken unto you, that in me ye might have peace. In the world ye shall have tribulation: but be of good cheer; I have overcome the world.", "reference": "John 16:33", "keywords": "peace,world,tribulation,cheer,overcome" }
+	]
+}

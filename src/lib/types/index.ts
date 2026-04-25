@@ -11,28 +11,65 @@ export type GamePhase =
 	| 'SCORES'
 	| 'FINAL';
 
-export type GameMode = 'fill-the-gap' | 'name-that-reference' | 'quote-it';
+export type GameMode =
+	| 'fill-the-gap'
+	| 'name-that-reference'
+	| 'quote-it'
+	| 'who-said-this'
+	| 'bible-numbers'
+	| 'single-book';
 
 export const GAME_MODE_LABELS: Record<GameMode, string> = {
 	'fill-the-gap': 'Fill the Gap',
 	'name-that-reference': 'Name That Reference',
-	'quote-it': 'Quote It'
+	'quote-it': 'Quote It',
+	'who-said-this': 'Who Said This?',
+	'bible-numbers': 'Bible Numbers',
+	'single-book': 'Single Book'
 };
 
 export const PLAYER_AVATARS = [
-	'lion', 'dove', 'lamb', 'fish', 'eagle', 'olive', 'crown', 'star',
-	'flame', 'scroll', 'harp', 'shield', 'cross', 'ark', 'trumpet',
-	'anchor', 'vine', 'wheat', 'rainbow', 'pearl'
+	// Male (10)
+	'man', 'boy', 'grandpa', 'beardman', 'prince',
+	'groom', 'santa', 'ninja', 'cowboy', 'farmer',
+	// Female (10)
+	'woman', 'girl', 'grandma', 'hijab', 'princess',
+	'bride', 'fairy', 'mermaid', 'dancer', 'chef'
 ] as const;
 
 export type Avatar = (typeof PLAYER_AVATARS)[number];
 
-export const AVATAR_EMOJI: Record<Avatar, string> = {
-	lion: '🦁', dove: '🕊️', lamb: '🐑', fish: '🐟', eagle: '🦅',
-	olive: '🫒', crown: '👑', star: '⭐', flame: '🔥', scroll: '📜',
-	harp: '🎵', shield: '🛡️', cross: '✝️', ark: '🚢', trumpet: '📯',
-	anchor: '⚓', vine: '🍇', wheat: '🌾', rainbow: '🌈', pearl: '💎'
+const AVATAR_EMOJI_NEW: Record<Avatar, string> = {
+	man: '👨', boy: '👦', grandpa: '👴', beardman: '🧔', prince: '🤴',
+	groom: '🤵', santa: '🎅', ninja: '🥷', cowboy: '🤠', farmer: '👨‍🌾',
+	woman: '👩', girl: '👧', grandma: '👵', hijab: '🧕', princess: '👸',
+	bride: '👰', fairy: '🧚‍♀️', mermaid: '🧜‍♀️', dancer: '💃', chef: '👩‍🍳'
 };
+
+// Legacy avatar name fallback — maps removed animal/object avatars to a new default
+// so old localStorage/DB values don't break rendering.
+const LEGACY_AVATAR_MAP: Record<string, Avatar> = {
+	lion: 'man', dove: 'woman', lamb: 'girl', fish: 'boy', eagle: 'prince',
+	olive: 'grandma', crown: 'princess', star: 'fairy', flame: 'ninja',
+	scroll: 'grandpa', harp: 'dancer', shield: 'beardman', cross: 'groom',
+	ark: 'cowboy', trumpet: 'santa', anchor: 'farmer', vine: 'bride',
+	wheat: 'chef', rainbow: 'mermaid', pearl: 'hijab'
+};
+
+// Exposed as `Record<string, string>` so any stored avatar name (old or new)
+// returns a usable emoji rather than `undefined`.
+export const AVATAR_EMOJI: Record<string, string> = {
+	...AVATAR_EMOJI_NEW,
+	...Object.fromEntries(
+		Object.entries(LEGACY_AVATAR_MAP).map(([legacy, newKey]) => [legacy, AVATAR_EMOJI_NEW[newKey]])
+	)
+};
+
+export function normalizeAvatar(value: string | null | undefined): Avatar {
+	if (!value) return 'man';
+	if ((PLAYER_AVATARS as readonly string[]).includes(value)) return value as Avatar;
+	return LEGACY_AVATAR_MAP[value] ?? 'man';
+}
 
 // ── Data Models ──────────────────────────────────────────────
 
@@ -43,6 +80,7 @@ export interface VersePack {
 	description: string;
 	icon: string;
 	verseCount?: number;
+	supportedModes?: GameMode[];
 }
 
 export interface Verse {
@@ -118,10 +156,31 @@ export interface QuoteItQuestion {
 	wordChoices: string[][]; // per-blank array of word options
 }
 
+export interface MultipleChoiceQuestion {
+	mode: 'who-said-this' | 'bible-numbers';
+	questionId: number;
+	question: string;
+	reference: string;
+	correctAnswer: string;
+	choices: string[];
+	explanation?: string;
+}
+
+export interface SingleBookQuestion {
+	mode: 'single-book';
+	verseId: number;
+	text: string;
+	book: string;
+	reference: string;
+	correctReference: { book: string; chapter: number; verse: number };
+}
+
 export type Question =
 	| FillTheGapQuestion
 	| NameThatReferenceQuestion
-	| QuoteItQuestion;
+	| QuoteItQuestion
+	| MultipleChoiceQuestion
+	| SingleBookQuestion;
 
 // What the TV sees (no answers)
 export interface QuestionForTV {
@@ -133,8 +192,11 @@ export interface QuestionForTV {
 	textWithBlanks?: string;
 	reference?: string;
 	blankCount?: number;
-	// Name That Reference
+	// Name That Reference + Single Book
 	text?: string;
+	book?: string;
+	// Who Said This / Bible Numbers
+	question?: string;
 }
 
 // What the phone sees (input context)
@@ -148,6 +210,11 @@ export interface QuestionForPhone {
 	text?: string;
 	textWithBlanks?: string;
 	wordChoices?: string[][];
+	// Multiple-choice modes
+	question?: string;
+	choices?: string[];
+	// Single-book mode
+	book?: string;
 }
 
 // ── Answers ──────────────────────────────────────────────────
@@ -264,12 +331,19 @@ export const SCORING = {
 	NAME_THAT_REF_BOOK_CHAPTER: 500,
 	NAME_THAT_REF_BOOK_ONLY: 250,
 	QUOTE_IT_MAX: 1000,
+	WHO_SAID_THIS_MAX: 1000,
+	BIBLE_NUMBERS_MAX: 1000,
+	SINGLE_BOOK_EXACT: 1000,
+	SINGLE_BOOK_CHAPTER_ONLY: 400,
 	SPEED_BONUS_MAX: 500,
 	STREAK_MULTIPLIERS: [1.0, 1.0, 1.1, 1.2, 1.3, 1.5] as const,
 	TIME_LIMITS: {
 		'fill-the-gap': 30,
 		'name-that-reference': 29,
-		'quote-it': 45
+		'quote-it': 45,
+		'who-said-this': 25,
+		'bible-numbers': 25,
+		'single-book': 29
 	} as const,
 	POST_GAME_COUNTDOWN: 45
 } as const;

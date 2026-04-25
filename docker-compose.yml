@@ -1,6 +1,7 @@
 services:
   app:
     build: .
+    container_name: scripture-showdown
     ports:
       - "3000:3000"
     volumes:
@@ -10,6 +11,9 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - HOST=0.0.0.0
+      - DATABASE_PATH=/app/data/scripture-showdown.db
 
 volumes:
   game-data:
+    name: scripture-showdown-data
+    external: true

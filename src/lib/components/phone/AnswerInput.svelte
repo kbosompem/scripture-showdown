@@ -8,6 +8,19 @@
 	let gapAnswers = $state<string[]>(
 		Array(gameStore.phoneQuestion?.blankCount || 4).fill('')
 	);
+	let gapInputs: HTMLInputElement[] = [];
+
+	function handleGapKey(e: KeyboardEvent, i: number) {
+		if (e.key !== 'Enter') return;
+		e.preventDefault();
+		const next = gapInputs[i + 1];
+		if (next) {
+			next.focus();
+			next.select();
+		} else {
+			submit();
+		}
+	}
 
 	// Quote-it: word choice selections
 	let quoteSelections = $state<string[]>(
@@ -21,6 +34,14 @@
 	let refStep = $state<'testament' | 'book' | 'chapter' | 'verse'>('testament');
 	let selectedTestament = $state<'OT' | 'NT' | ''>('');
 
+	// Multiple choice (who-said-this, bible-numbers)
+	let selectedChoice = $state('');
+
+	// Single-book: chapter/verse picker only (book is known)
+	let sbStep = $state<'chapter' | 'verse'>('chapter');
+	let sbChapter = $state('');
+	let sbVerse = $state('');
+
 	let mode = $derived(gameStore.phoneQuestion?.mode);
 
 	function submit() {
@@ -32,6 +53,10 @@
 			onSubmit(`${selectedBook} ${selectedChapter}:${selectedVerse}`);
 		} else if (mode === 'quote-it') {
 			onSubmit(quoteSelections);
+		} else if (mode === 'who-said-this' || mode === 'bible-numbers') {
+			onSubmit(selectedChoice);
+		} else if (mode === 'single-book') {
+			onSubmit(`${sbChapter}:${sbVerse}`);
 		}
 	}
 
@@ -40,10 +65,42 @@
 			onSubmit(Array(gapAnswers.length).fill(''));
 		} else if (mode === 'quote-it') {
 			onSubmit(Array(quoteSelections.length).fill(''));
-		} else if (mode === 'name-that-reference') {
+		} else {
 			onSubmit('');
 		}
 	}
+
+	function selectMultipleChoice(choice: string) {
+		selectedChoice = choice;
+	}
+
+	function sbSelectChapter(ch: number) {
+		sbChapter = String(ch);
+		sbVerse = '';
+		sbStep = 'verse';
+	}
+
+	function sbSelectVerse(v: number) {
+		sbVerse = String(v);
+	}
+
+	function sbBackToChapter() {
+		sbChapter = '';
+		sbVerse = '';
+		sbStep = 'chapter';
+	}
+
+	let sbBook = $derived(gameStore.phoneQuestion?.book || '');
+	let sbChapterCount = $derived(
+		sbBook
+			? bibleStructure.books.find(b => b.name === sbBook)?.chapters.length || 0
+			: 0
+	);
+	let sbVerseCount = $derived(
+		sbBook && sbChapter
+			? bibleStructure.books.find(b => b.name === sbBook)?.chapters[parseInt(sbChapter) - 1] || 0
+			: 0
+	);
 
 	// Load bible structure for reference selector
 	import bibleStructure from '$lib/data/bible-structure.json';
@@ -143,9 +200,12 @@
 							type="text"
 							class="input"
 							bind:value={gapAnswers[i]}
+							bind:this={gapInputs[i]}
+							onkeydown={(e) => handleGapKey(e, i)}
 							placeholder="Missing word {i + 1}"
 							autocomplete="off"
 							autocapitalize="off"
+							enterkeyhint={i === gapAnswers.length - 1 ? 'send' : 'next'}
 						/>
 					</div>
 				{/each}
@@ -221,6 +281,55 @@
 					{/if}
 				{/if}
 
+			{:else if mode === 'who-said-this' || mode === 'bible-numbers'}
+				<p class="input-instruction">{gameStore.phoneQuestion?.question}</p>
+				<div class="choice-grid">
+					{#each gameStore.phoneQuestion?.choices || [] as choice (choice)}
+						<button
+							type="button"
+							class="choice-btn"
+							class:selected-choice={selectedChoice === choice}
+							onclick={() => selectMultipleChoice(choice)}
+						>
+							{choice}
+						</button>
+					{/each}
+				</div>
+
+			{:else if mode === 'single-book'}
+				{#if sbStep === 'chapter'}
+					<p class="input-instruction">Book: <strong>{sbBook}</strong></p>
+					<p class="input-instruction">Select Chapter</p>
+					<div class="num-grid">
+						{#each Array.from({ length: sbChapterCount }, (_, i) => i + 1) as ch (ch)}
+							<button type="button" class="grid-btn num-btn" onclick={() => sbSelectChapter(ch)}>
+								{ch}
+							</button>
+						{/each}
+					</div>
+				{:else if sbStep === 'verse'}
+					<div class="step-header">
+						<button type="button" class="back-btn" onclick={sbBackToChapter}>&#8592; Ch.</button>
+						<span class="step-selection">{sbBook} {sbChapter}</span>
+					</div>
+					<p class="input-instruction">Select Verse</p>
+					<div class="num-grid">
+						{#each Array.from({ length: sbVerseCount }, (_, i) => i + 1) as v (v)}
+							<button
+								type="button"
+								class="grid-btn num-btn"
+								class:selected-num={sbVerse === String(v)}
+								onclick={() => sbSelectVerse(v)}
+							>
+								{v}
+							</button>
+						{/each}
+					</div>
+					{#if sbVerse}
+						<p class="preview-ref">{sbBook} {sbChapter}:{sbVerse}</p>
+					{/if}
+				{/if}
+
 			{:else if mode === 'quote-it'}
 				<p class="input-instruction">{gameStore.phoneQuestion?.reference}</p>
 				{#if gameStore.phoneQuestion?.textWithBlanks}
@@ -265,6 +374,14 @@
 				{/if}
 			{:else if mode === 'quote-it'}
 				{#if quoteSelections.every(s => s !== '')}
+					<button class="btn btn-primary submit-btn" onclick={submit}>Submit</button>
+				{/if}
+			{:else if mode === 'who-said-this' || mode === 'bible-numbers'}
+				{#if selectedChoice}
+					<button class="btn btn-primary submit-btn" onclick={submit}>Submit</button>
+				{/if}
+			{:else if mode === 'single-book'}
+				{#if sbVerse}
 					<button class="btn btn-primary submit-btn" onclick={submit}>Submit</button>
 				{/if}
 			{:else}
@@ -500,4 +617,38 @@
 	}
 
 	.submit-btn, .skip-btn { width: 100%; }
+
+	/* ── Multiple-choice (who-said-this, bible-numbers) ── */
+	.choice-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.75rem;
+		margin-top: 0.5rem;
+	}
+
+	.choice-btn {
+		padding: 1rem 0.75rem;
+		border: 2px solid var(--color-border);
+		border-radius: 0.5rem;
+		background: var(--color-card);
+		font-size: 1rem;
+		font-weight: 700;
+		color: var(--color-ink);
+		cursor: pointer;
+		min-height: 72px;
+		transition: all 120ms ease;
+		text-align: center;
+		word-break: break-word;
+	}
+
+	.choice-btn:active {
+		transform: scale(0.96);
+	}
+
+	.selected-choice {
+		background: var(--color-accent);
+		color: white;
+		border-color: var(--color-accent);
+		transform: scale(1.02);
+	}
 </style>

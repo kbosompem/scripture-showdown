@@ -1,0 +1,201 @@
+{
+	"slug": "bible-people",
+	"name": "Bible People",
+	"description": "Who said it? Who did it? Identify the person behind the scene.",
+	"icon": "👥",
+	"supported_modes": ["who-said-this"],
+	"quiz_items": [
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"I am the way, the truth, and the life\"?",
+			"correct": "Jesus",
+			"choices": ["Jesus", "Paul", "Peter", "John the Baptist"],
+			"reference": "John 14:6",
+			"difficulty": 1
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Am I my brother's keeper?\"",
+			"correct": "Cain",
+			"choices": ["Cain", "Abel", "Seth", "Noah"],
+			"reference": "Genesis 4:9",
+			"difficulty": 1
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Let my people go\"?",
+			"correct": "Moses",
+			"choices": ["Moses", "Aaron", "Joshua", "Abraham"],
+			"reference": "Exodus 5:1",
+			"difficulty": 1
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Whither thou goest, I will go\"?",
+			"correct": "Ruth",
+			"choices": ["Ruth", "Esther", "Naomi", "Rebekah"],
+			"reference": "Ruth 1:16",
+			"difficulty": 2
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Here am I; send me\"?",
+			"correct": "Isaiah",
+			"choices": ["Isaiah", "Jeremiah", "Ezekiel", "Daniel"],
+			"reference": "Isaiah 6:8",
+			"difficulty": 2
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Thou art the Christ, the Son of the living God\"?",
+			"correct": "Peter",
+			"choices": ["Peter", "John", "Andrew", "Thomas"],
+			"reference": "Matthew 16:16",
+			"difficulty": 1
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Speak; for thy servant heareth\"?",
+			"correct": "Samuel",
+			"choices": ["Samuel", "David", "Saul", "Eli"],
+			"reference": "1 Samuel 3:10",
+			"difficulty": 2
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"The LORD is my shepherd; I shall not want\"?",
+			"correct": "David",
+			"choices": ["David", "Solomon", "Moses", "Asaph"],
+			"reference": "Psalm 23:1",
+			"difficulty": 1
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"How shall this be, seeing I know not a man?\"",
+			"correct": "Mary",
+			"choices": ["Mary", "Elisabeth", "Martha", "Anna"],
+			"reference": "Luke 1:34",
+			"difficulty": 2
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Father, forgive them; for they know not what they do\"?",
+			"correct": "Jesus",
+			"choices": ["Jesus", "Stephen", "Peter", "Paul"],
+			"reference": "Luke 23:34",
+			"difficulty": 1
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"My grace is sufficient for thee\"?",
+			"correct": "The Lord (to Paul)",
+			"choices": ["The Lord (to Paul)", "Jesus (to Peter)", "An angel (to Mary)", "The Lord (to Moses)"],
+			"reference": "2 Corinthians 12:9",
+			"difficulty": 3
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Behold, I stand at the door, and knock\"?",
+			"correct": "Jesus",
+			"choices": ["Jesus", "John the Revelator", "An angel", "Paul"],
+			"reference": "Revelation 3:20",
+			"difficulty": 2
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"To live is Christ, and to die is gain\"?",
+			"correct": "Paul",
+			"choices": ["Paul", "Peter", "John", "James"],
+			"reference": "Philippians 1:21",
+			"difficulty": 2
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who prayed, \"Create in me a clean heart, O God\"?",
+			"correct": "David",
+			"choices": ["David", "Solomon", "Moses", "Isaiah"],
+			"reference": "Psalm 51:10",
+			"difficulty": 2
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"I am a voice of one crying in the wilderness\"?",
+			"correct": "John the Baptist",
+			"choices": ["John the Baptist", "Isaiah", "Elijah", "Jesus"],
+			"reference": "John 1:23",
+			"difficulty": 2
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Be it unto me according to thy word\"?",
+			"correct": "Mary",
+			"choices": ["Mary", "Elisabeth", "Hannah", "Sarah"],
+			"reference": "Luke 1:38",
+			"difficulty": 2
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"The Lord gave, and the Lord hath taken away; blessed be the name of the Lord\"?",
+			"correct": "Job",
+			"choices": ["Job", "David", "Solomon", "Jeremiah"],
+			"reference": "Job 1:21",
+			"difficulty": 2
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"I have fought a good fight, I have finished my course, I have kept the faith\"?",
+			"correct": "Paul",
+			"choices": ["Paul", "Peter", "Stephen", "John"],
+			"reference": "2 Timothy 4:7",
+			"difficulty": 3
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"My Lord and my God\" upon seeing the risen Jesus?",
+			"correct": "Thomas",
+			"choices": ["Thomas", "Peter", "John", "Nathanael"],
+			"reference": "John 20:28",
+			"difficulty": 3
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Nevertheless not my will, but thine, be done\"?",
+			"correct": "Jesus",
+			"choices": ["Jesus", "Peter", "Paul", "Abraham"],
+			"reference": "Luke 22:42",
+			"difficulty": 2
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Choose you this day whom ye will serve\"?",
+			"correct": "Joshua",
+			"choices": ["Joshua", "Moses", "Samuel", "David"],
+			"reference": "Joshua 24:15",
+			"difficulty": 3
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Though he slay me, yet will I trust in him\"?",
+			"correct": "Job",
+			"choices": ["Job", "David", "Daniel", "Paul"],
+			"reference": "Job 13:15",
+			"difficulty": 3
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Be still, and know that I am God\"?",
+			"correct": "God",
+			"choices": ["God", "Jesus", "David", "An angel"],
+			"reference": "Psalm 46:10",
+			"difficulty": 2
+		},
+		{
+			"mode": "who-said-this",
+			"question": "Who said, \"Silver and gold have I none; but such as I have give I thee\"?",
+			"correct": "Peter",
+			"choices": ["Peter", "John", "Paul", "Philip"],
+			"reference": "Acts 3:6",
+			"difficulty": 3
+		}
+	]
+}
