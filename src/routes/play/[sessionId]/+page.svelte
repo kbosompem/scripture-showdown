@@ -114,8 +114,8 @@
 		waitForId();
 	}
 
-	function handleStart(packSlug: string, mode: GameMode, numRounds: number) {
-		socket.emit('game:start', { packSlug, mode, numRounds });
+	function handleStart(packSlug: string, mode: GameMode, numRounds: number, level?: number) {
+		socket.emit('game:start', { packSlug, mode, numRounds, level });
 	}
 
 	function handleSubmit(answer: string | string[]) {

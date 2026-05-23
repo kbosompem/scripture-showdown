@@ -46,7 +46,7 @@
 			{/if}
 			<p class="instruction">Fill in the missing words</p>
 
-		{:else if q?.mode === 'who-said-this' || q?.mode === 'bible-numbers'}
+		{:else if q?.mode === 'who-said-this' || q?.mode === 'bible-numbers' || q?.mode === 'whosoever'}
 			{#if q.question}
 				<p class="verse-display">{q.question}</p>
 			{/if}

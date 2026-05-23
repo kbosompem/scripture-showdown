@@ -223,7 +223,7 @@ export function setupSocketHandlers(io: Server): void {
 		});
 
 		// ── Start game ───────────────────────────────────
-		socket.on('game:start', (data: { packSlug: string; mode: GameMode; numRounds: number }) => {
+		socket.on('game:start', (data: { packSlug: string; mode: GameMode; numRounds: number; level?: number }) => {
 			if (isRateLimited(ip, 'game:start')) {
 				socket.emit('player:error', { message: 'Too many start attempts.' });
 				return;
@@ -237,7 +237,7 @@ export function setupSocketHandlers(io: Server): void {
 				return;
 			}
 
-			const success = sess.engine.startGame(data.packSlug, data.mode, data.numRounds);
+			const success = sess.engine.startGame(data.packSlug, data.mode, data.numRounds, data.level);
 			if (!success) {
 				socket.emit('player:error', { message: 'Failed to start game. Check verse pack.' });
 			}

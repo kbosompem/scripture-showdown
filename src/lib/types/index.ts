@@ -17,6 +17,7 @@ export type GameMode =
 	| 'quote-it'
 	| 'who-said-this'
 	| 'bible-numbers'
+	| 'whosoever'
 	| 'single-book';
 
 export const GAME_MODE_LABELS: Record<GameMode, string> = {
@@ -25,8 +26,14 @@ export const GAME_MODE_LABELS: Record<GameMode, string> = {
 	'quote-it': 'Quote It',
 	'who-said-this': 'Who Said This?',
 	'bible-numbers': 'Bible Numbers',
+	'whosoever': 'Whosoever',
 	'single-book': 'Single Book'
 };
+
+// Modes that support difficulty levels (1-5). 10 questions per level per game.
+export const LEVELED_MODES: GameMode[] = ['who-said-this', 'bible-numbers', 'whosoever'];
+export const MAX_LEVEL = 5;
+export const ROUNDS_PER_LEVEL = 10;
 
 export const PLAYER_AVATARS = [
 	// Male (10)
@@ -157,7 +164,7 @@ export interface QuoteItQuestion {
 }
 
 export interface MultipleChoiceQuestion {
-	mode: 'who-said-this' | 'bible-numbers';
+	mode: 'who-said-this' | 'bible-numbers' | 'whosoever';
 	questionId: number;
 	question: string;
 	reference: string;
@@ -299,7 +306,7 @@ export interface ClientEvents {
 	'player:leave': () => void;
 	'player:quit': () => void;
 	'tv:connect': () => void;
-	'game:start': (data: { packSlug: string; mode: GameMode; numRounds: number }) => void;
+	'game:start': (data: { packSlug: string; mode: GameMode; numRounds: number; level?: number }) => void;
 	'game:kill': () => void;
 	'answer:submit': (data: { roundNumber: number; answer: string | string[]; timeMs: number }) => void;
 	'game:play-again': () => void;
@@ -333,6 +340,7 @@ export const SCORING = {
 	QUOTE_IT_MAX: 1000,
 	WHO_SAID_THIS_MAX: 1000,
 	BIBLE_NUMBERS_MAX: 1000,
+	WHOSOEVER_MAX: 1000,
 	SINGLE_BOOK_EXACT: 1000,
 	SINGLE_BOOK_CHAPTER_ONLY: 400,
 	SPEED_BONUS_MAX: 500,
@@ -343,6 +351,7 @@ export const SCORING = {
 		'quote-it': 45,
 		'who-said-this': 25,
 		'bible-numbers': 25,
+		'whosoever': 25,
 		'single-book': 29
 	} as const,
 	POST_GAME_COUNTDOWN: 45

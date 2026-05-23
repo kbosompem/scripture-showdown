@@ -8,7 +8,7 @@ import type {
 import { SCORING } from '../types/index.js';
 import {
 	generateQuestion, generateMultipleChoice, getVersesForPack, getQuizItemsForPack,
-	pickRandomVerses, pickOrderedVerses, pickQuizItems
+	pickRandomVerses, pickOrderedVerses, pickQuizItems, pickQuizItemsByLevel
 } from './question-generator.js';
 import { fuzzyMatch } from './fuzzy-match.js';
 import { getDb } from './db.js';
@@ -117,7 +117,7 @@ export class GameEngine {
 
 	// ── Game lifecycle ───────────────────────────────────────
 
-	startGame(packSlug: string, mode: GameMode, numRounds: number): boolean {
+	startGame(packSlug: string, mode: GameMode, numRounds: number, level?: number): boolean {
 		if (this.phase !== 'LOBBY') return false;
 		if (this.getActivePlayers().length === 0) return false;
 
@@ -126,10 +126,12 @@ export class GameEngine {
 
 		let questions: Question[] = [];
 
-		if (mode === 'who-said-this' || mode === 'bible-numbers') {
+		if (mode === 'who-said-this' || mode === 'bible-numbers' || mode === 'whosoever') {
 			const items = getQuizItemsForPack(packSlug, mode);
 			if (items.length === 0) return false;
-			const selected = pickQuizItems(items, numRounds);
+			const selected = (typeof level === 'number' && level >= 1 && level <= 5)
+				? pickQuizItemsByLevel(items, numRounds, level)
+				: pickQuizItems(items, numRounds);
 			questions = selected.map((item) => generateMultipleChoice(item, mode));
 		} else if (mode === 'single-book') {
 			const verses = getVersesForPack(packSlug);
@@ -503,7 +505,8 @@ export class GameEngine {
 				break;
 			}
 			case 'who-said-this':
-			case 'bible-numbers': {
+			case 'bible-numbers':
+			case 'whosoever': {
 				const mc = q as MultipleChoiceQuestion;
 				answerText = String(answer.answer);
 				const normalizedActual = answerText.trim().toLowerCase();
@@ -512,7 +515,9 @@ export class GameEngine {
 				accuracyPct = isCorrect ? 1.0 : 0;
 				const max = q.mode === 'who-said-this'
 					? SCORING.WHO_SAID_THIS_MAX
-					: SCORING.BIBLE_NUMBERS_MAX;
+					: q.mode === 'bible-numbers'
+						? SCORING.BIBLE_NUMBERS_MAX
+						: SCORING.WHOSOEVER_MAX;
 				basePoints = isCorrect ? max : 0;
 				break;
 			}
@@ -584,7 +589,8 @@ export class GameEngine {
 				return { ...base, reference: qi.reference, textWithBlanks: qi.textWithBlanks, blankCount: qi.blankCount };
 			}
 			case 'who-said-this':
-			case 'bible-numbers': {
+			case 'bible-numbers':
+			case 'whosoever': {
 				const mc = q as MultipleChoiceQuestion;
 				return { ...base, question: mc.question, reference: mc.reference };
 			}
@@ -614,7 +620,8 @@ export class GameEngine {
 				return { ...base, reference: qi.reference, textWithBlanks: qi.textWithBlanks, blankCount: qi.blankCount, wordChoices: qi.wordChoices };
 			}
 			case 'who-said-this':
-			case 'bible-numbers': {
+			case 'bible-numbers':
+			case 'whosoever': {
 				const mc = q as MultipleChoiceQuestion;
 				return { ...base, question: mc.question, choices: mc.choices };
 			}
@@ -654,7 +661,8 @@ export class GameEngine {
 				break;
 			}
 			case 'who-said-this':
-			case 'bible-numbers': {
+			case 'bible-numbers':
+			case 'whosoever': {
 				const mc = q as MultipleChoiceQuestion;
 				correctAnswer = mc.correctAnswer;
 				correctReference = mc.reference;

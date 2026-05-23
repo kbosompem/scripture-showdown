@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { gameStore } from '$lib/stores/game.svelte.js';
-	import { AVATAR_EMOJI, GAME_MODE_LABELS, type GameMode, type Avatar } from '$lib/types/index.js';
+	import { AVATAR_EMOJI, GAME_MODE_LABELS, LEVELED_MODES, ROUNDS_PER_LEVEL, type GameMode, type Avatar } from '$lib/types/index.js';
 
 	let {
 		onStart,
 		canStart = false,
 		packs = []
 	}: {
-		onStart: (packSlug: string, mode: GameMode, numRounds: number) => void;
+		onStart: (packSlug: string, mode: GameMode, numRounds: number, level?: number) => void;
 		canStart: boolean;
 		packs: { slug: string; name: string; icon: string; verseCount: number; supportedModes?: GameMode[] }[];
 	} = $props();
@@ -16,6 +16,7 @@
 	let selectedPack = $state('');
 	let selectedMode = $state<GameMode>('fill-the-gap');
 	let numRounds = $state(10);
+	let selectedLevel = $state(1);
 
 	const ALL_MODES: { value: GameMode; label: string }[] = [
 		{ value: 'fill-the-gap', label: 'Fill the Gap' },
@@ -23,6 +24,7 @@
 		{ value: 'quote-it', label: 'Quote It' },
 		{ value: 'who-said-this', label: 'Who Said This?' },
 		{ value: 'bible-numbers', label: 'Bible Numbers' },
+		{ value: 'whosoever', label: 'Whosoever' },
 		{ value: 'single-book', label: 'Single Book' }
 	];
 
@@ -32,6 +34,7 @@
 			? ALL_MODES.filter(m => currentPack!.supportedModes!.includes(m.value))
 			: ALL_MODES.slice(0, 3)
 	);
+	let isLeveled = $derived(LEVELED_MODES.includes(selectedMode));
 
 	$effect(() => {
 		if (availableModes.length > 0 && !availableModes.some(m => m.value === selectedMode)) {
@@ -41,7 +44,11 @@
 
 	function handleStart() {
 		if (selectedPack && selectedMode) {
-			onStart(selectedPack, selectedMode, numRounds);
+			if (isLeveled) {
+				onStart(selectedPack, selectedMode, ROUNDS_PER_LEVEL, selectedLevel);
+			} else {
+				onStart(selectedPack, selectedMode, numRounds);
+			}
 		}
 	}
 </script>
@@ -96,8 +103,23 @@
 					{/each}
 				</div>
 
-				<label class="field-label">Rounds: {numRounds}</label>
-				<input type="range" min="5" max="25" step="5" bind:value={numRounds} class="range-input" />
+				{#if isLeveled}
+					<label class="field-label">Level: {selectedLevel} <span class="rounds-hint">({ROUNDS_PER_LEVEL} questions)</span></label>
+					<div class="level-grid">
+						{#each [1, 2, 3, 4, 5] as lvl}
+							<button
+								class="level-btn"
+								class:selected={selectedLevel === lvl}
+								onclick={() => selectedLevel = lvl}
+							>
+								{lvl}
+							</button>
+						{/each}
+					</div>
+				{:else}
+					<label class="field-label">Rounds: {numRounds}</label>
+					<input type="range" min="5" max="25" step="5" bind:value={numRounds} class="range-input" />
+				{/if}
 
 				<button
 					class="btn btn-primary start-btn"
@@ -237,6 +259,37 @@
 	.range-input {
 		width: 100%;
 		accent-color: var(--color-accent);
+	}
+
+	.level-grid {
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		gap: 0.5rem;
+	}
+
+	.level-btn {
+		padding: 0.75rem 0;
+		border: 2px solid var(--color-border);
+		border-radius: 0.5rem;
+		background: var(--color-card);
+		font-size: 1.125rem;
+		font-weight: 700;
+		color: var(--color-ink);
+		cursor: pointer;
+		min-height: 48px;
+	}
+
+	.level-btn.selected {
+		border-color: var(--color-accent);
+		background: white;
+		color: var(--color-accent);
+	}
+
+	.rounds-hint {
+		font-weight: 400;
+		text-transform: none;
+		letter-spacing: 0;
+		opacity: 0.7;
 	}
 
 	.waiting-text {

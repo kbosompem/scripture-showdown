@@ -53,7 +53,7 @@
 			onSubmit(`${selectedBook} ${selectedChapter}:${selectedVerse}`);
 		} else if (mode === 'quote-it') {
 			onSubmit(quoteSelections);
-		} else if (mode === 'who-said-this' || mode === 'bible-numbers') {
+		} else if (mode === 'who-said-this' || mode === 'bible-numbers' || mode === 'whosoever') {
 			onSubmit(selectedChoice);
 		} else if (mode === 'single-book') {
 			onSubmit(`${sbChapter}:${sbVerse}`);
@@ -281,7 +281,7 @@
 					{/if}
 				{/if}
 
-			{:else if mode === 'who-said-this' || mode === 'bible-numbers'}
+			{:else if mode === 'who-said-this' || mode === 'bible-numbers' || mode === 'whosoever'}
 				<p class="input-instruction">{gameStore.phoneQuestion?.question}</p>
 				<div class="choice-grid">
 					{#each gameStore.phoneQuestion?.choices || [] as choice (choice)}
@@ -376,7 +376,7 @@
 				{#if quoteSelections.every(s => s !== '')}
 					<button class="btn btn-primary submit-btn" onclick={submit}>Submit</button>
 				{/if}
-			{:else if mode === 'who-said-this' || mode === 'bible-numbers'}
+			{:else if mode === 'who-said-this' || mode === 'bible-numbers' || mode === 'whosoever'}
 				{#if selectedChoice}
 					<button class="btn btn-primary submit-btn" onclick={submit}>Submit</button>
 				{/if}

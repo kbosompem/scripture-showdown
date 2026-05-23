@@ -75,7 +75,7 @@ export function generateQuestion(verse: Verse, mode: GameMode, allVerses?: Verse
 
 export function generateMultipleChoice(
 	item: QuizItemRow,
-	mode: 'who-said-this' | 'bible-numbers'
+	mode: 'who-said-this' | 'bible-numbers' | 'whosoever'
 ): MultipleChoiceQuestion {
 	return {
 		mode,
@@ -230,5 +230,14 @@ export function pickOrderedVerses(verses: Verse[], count: number): Verse[] {
 /** Pick N quiz items, preferring easier ones first but with some shuffle */
 export function pickQuizItems(items: QuizItemRow[], count: number): QuizItemRow[] {
 	const shuffled = [...items].sort(() => Math.random() - 0.5);
+	return shuffled.slice(0, Math.min(count, shuffled.length));
+}
+
+/** Pick N quiz items at a specific difficulty level (1-5). Falls back to nearby
+ * levels if the requested level is empty (older packs without leveled data). */
+export function pickQuizItemsByLevel(items: QuizItemRow[], count: number, level: number): QuizItemRow[] {
+	const atLevel = items.filter((it) => it.difficulty === level);
+	const pool = atLevel.length > 0 ? atLevel : items;
+	const shuffled = [...pool].sort(() => Math.random() - 0.5);
 	return shuffled.slice(0, Math.min(count, shuffled.length));
 }
