@@ -13,6 +13,31 @@ import {
 import { fuzzyMatch } from './fuzzy-match.js';
 import { getDb } from './db.js';
 
+function escapeHtml(s: string): string {
+	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/** Build the reveal HTML for a Whosoever question by substituting the answer
+ * into the trailing ellipsis. Falls back to appending the answer if no
+ * ellipsis is found (e.g., "said by whom?" style questions). */
+function renderWhosoeverReveal(question: string, answer: string): string {
+	const boldAnswer = `<strong>${escapeHtml(answer)}</strong>`;
+	// Replace the LAST `...` (with optional trailing punctuation/quote) with the answer.
+	const match = question.match(/\.\.\.(["'”’]?)\s*$/);
+	if (match) {
+		const trail = match[1];
+		return escapeHtml(question.slice(0, match.index)) + ' ' + boldAnswer + (trail ? escapeHtml(trail) : '');
+	}
+	// Otherwise replace any `...` mid-string.
+	const idx = question.lastIndexOf('...');
+	if (idx >= 0) {
+		return escapeHtml(question.slice(0, idx)) + ' ' + boldAnswer + ' ' + escapeHtml(question.slice(idx + 3));
+	}
+	// No ellipsis — append the answer.
+	return escapeHtml(question) + ' &mdash; ' + boldAnswer;
+}
+
 /** Generate a short random player ID */
 function generatePlayerId(): string {
 	const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
@@ -666,7 +691,11 @@ export class GameEngine {
 				const mc = q as MultipleChoiceQuestion;
 				correctAnswer = mc.correctAnswer;
 				correctReference = mc.reference;
-				fullVerseText = mc.explanation || mc.question;
+				if (mc.mode === 'whosoever') {
+					fullVerseText = renderWhosoeverReveal(mc.question, mc.correctAnswer);
+				} else {
+					fullVerseText = mc.explanation || mc.question;
+				}
 				break;
 			}
 			case 'single-book': {

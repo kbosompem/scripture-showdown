@@ -83,7 +83,7 @@ export function generateMultipleChoice(
 		question: item.question,
 		reference: item.reference ?? '',
 		correctAnswer: item.correctAnswer,
-		choices: item.choices,
+		choices: [...item.choices].sort(() => Math.random() - 0.5),
 		explanation: item.explanation ?? undefined
 	};
 }

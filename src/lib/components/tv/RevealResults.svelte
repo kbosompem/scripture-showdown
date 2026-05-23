@@ -10,7 +10,11 @@
 	</header>
 
 	{#if gameStore.revealData?.fullVerseText}
-		<p class="full-verse">&ldquo;{gameStore.revealData.fullVerseText}&rdquo;</p>
+		{#if gameStore.revealData.fullVerseText.includes('<strong>')}
+			<p class="full-verse">{@html gameStore.revealData.fullVerseText}</p>
+		{:else}
+			<p class="full-verse">&ldquo;{gameStore.revealData.fullVerseText}&rdquo;</p>
+		{/if}
 		{#if gameStore.revealData.correctReference && gameStore.revealData.correctReference !== gameStore.revealData.correctAnswer}
 			<p class="verse-ref">&mdash; {gameStore.revealData.correctReference}</p>
 		{/if}
